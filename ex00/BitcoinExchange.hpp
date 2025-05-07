@@ -5,6 +5,17 @@
 #include "fstream"
 #include <map>
 #include <regex>
+#include <sstream>
+
+typedef enum e_errors
+{
+	E_ARGS,
+	E_FILE,
+	E_INPUT,
+	E_DATE,
+	E_VALUE,
+	E_EMPTY,
+} t_errors;
 
 class BitcoinExchange
 {
@@ -17,7 +28,11 @@ class BitcoinExchange
 		// BitcoinExchange operator=(const BitcoinExchange& other);
 		~BitcoinExchange();
 
-		bool	validateDate();
+		bool	validateDate(std::string str);
+		bool	validateValue(std::string);
+		void	parsing();
+		bool	filterOne(std::ifstream *file);
+		static void	err(t_errors err, std::ifstream* file);
 };
 
 #endif

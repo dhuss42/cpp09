@@ -1,15 +1,9 @@
 #include "BitcoinExchange.hpp"
 
-void	parsing(BitcoinExchange &btc)
-{
-	if (btc.validateDate())
-		std::cout << "date matches" << std::endl;
-}
-
 void	exchanger(const std::string& filename)
 {
 	BitcoinExchange btc(filename);
-	parsing(btc);
+	btc.parsing();
 }
 
 int	main(int argc, char **argv)
