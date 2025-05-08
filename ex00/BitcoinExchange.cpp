@@ -18,16 +18,16 @@ BitcoinExchange::~BitcoinExchange()
 
 bool	isLeapYear(int year)
 {
-	return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+	if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
+		return (true);
+	return (false);
 }
-// use map
-
-//open file
 
 //year-month-date |
 // matches stores what is grouped together determined by ()
 // still possible to input invalid years like 1000, need to find out what the lowest valid date is
 //	maybe from the csv file
+// something not correct with the gap year
 bool	BitcoinExchange::validateDate(std::string str)
 {
 	std::smatch matches;
@@ -38,15 +38,13 @@ bool	BitcoinExchange::validateDate(std::string str)
 	int month = std::stoi(matches[2].str());
 	int day = std::stoi(matches[3].str());
 	const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 ,31};
-	if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month])
+	if (month < 1 || month > 12)
 		err(E_DATE, nullptr);
-	if (month == 2)
-	{
-		if (isLeapYear(year) && day > 29)
-			err(E_DATE, nullptr);
-		else
-			err(E_DATE, nullptr);
-	}
+	int maxDays = daysInMonth[month];
+	if (month == 2 && isLeapYear(year))
+		maxDays = 29;
+	if (day < 1 || day > maxDays)
+		err(E_DATE, nullptr);
 	return (true);
 }
 
@@ -59,9 +57,9 @@ bool	BitcoinExchange::validateValue(std::string str)
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		err(E_VALUE, nullptr);
 	}
-	std::cout << num << std::endl;
+	// std::cout << num << std::endl;
 	if (num < 0 || num > 1000)
 		err(E_VALUE, nullptr);
 	return (true);
@@ -72,11 +70,15 @@ bool	BitcoinExchange::validateValue(std::string str)
 //	if the date does not exist in DB then use the next closest lower date
 
 
-bool	BitcoinExchange::filterOne(std::ifstream *file)
+void	BitcoinExchange::parsing()
 {
+	std::string token;
+	std::ifstream file(_filename);
+	if (!file)
+		err(E_FILE, NULL);
 	std::string	content;
-	std::regex	pattern("^(\\d{4})-(\\d{2})-(\\d{2}) \\| (\\d+[.]?\\d+)$");
-	while (getline(*file, content))
+	std::regex	pattern("^(\\d{4})-(\\d{2})-(\\d{2}) \\| (\\d+[.]?\\d*)$");
+	while (getline(file, content))
 	{
 		std::cout << content << std::endl;
 		if (!std::regex_match(content, pattern))
@@ -97,22 +99,16 @@ bool	BitcoinExchange::filterOne(std::ifstream *file)
 			}
 		}
 	}
-	return (true);
-}
-
-// check with regex date | value
-// read from the file line for line
-// split the lines into two with delimiter |
-void	BitcoinExchange::parsing()
-{
-	std::string token;
-	std::ifstream file(_filename);
-	if (!file)
-		err(E_FILE, NULL);
-	if (!filterOne(&file))
-		err(E_DATE, &file);
 	file.close();
 }
+
+// use two map containers for both data bases
+//	map date and value/exchange rate
+//	iterate over the container for every date
+//		look up the closest lower date of the csv data base
+//		extract the exchange rate of that databse
+//		multiply by the value
+
 
 /*--------------------------*/
 /* handles errors			*/
