@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/09 15:51:38 by dhuss             #+#    #+#             */
+/*   Updated: 2025/05/09 15:51:40 by dhuss            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "BitcoinExchange.hpp"
 
 //--------Constructors----------//
@@ -23,8 +35,7 @@ std::string	BitcoinExchange::todaysDate()
 	now = std::time(nullptr);
 	std::strftime(time_str, sizeof(time_str), "%Y-%m-%d", std::localtime(&now));
 	std::cout << "today's date" << time_str << std::endl;
-	_date = time_str;
-	return(time_str);
+	return (time_str);
 }
 
 bool	isLeapYear(int year)
@@ -56,11 +67,8 @@ bool	BitcoinExchange::validateDate(std::string str)
 		maxDays = 29;
 	if (day < 1 || day > maxDays)
 		err(E_DATE, nullptr);
-	// std::cout << _date << std::endl;
 	if (!str.compare(_date))
-	{
 		return (false);
-	}
 	return (true);
 }
 
@@ -92,9 +100,6 @@ bool	BitcoinExchange::validateValue(std::string str)
 // upper boud returns the first iterator where the key is greater than the searched key
 void	BitcoinExchange::matchDates(std::string date, std::string value)
 {
-	// std::cout << "\n-------- match Dates ----------" << std::endl;
-
-
 	std::multimap<std::string, float>::iterator itD = _dataBase.upper_bound(date);
 	if (itD != _dataBase.begin())
 		itD--;
@@ -118,38 +123,14 @@ void	BitcoinExchange::parsing()
 	std::regex	pattern("^(\\d{4}-\\d{2}-\\d{2})( \\| )([+-]?\\d+[.]?\\d*)$");
 	while (getline(file, line))
 	{
-		// read from file
-		// split the line
-		// validate the date && value
-		// use the date to search for the corresponding date in container
-		// use the value to multiply
-
 		if (std::regex_match(line, split, pattern))
 		{
 			if (validateDate(split[1]) && validateValue(split[3]))
 				matchDates(split[1], split[3]);
-				// _input.insert({split[1], std::stof(split[3])});
 		}
-
-
-		// std::cout << line << std::endl;
-
-		// if (std::regex_match(line, split, pattern))
-		// {
-		// 	if (validateDate(split[1]) && validateValue(split[3]))
-		// 		_input.insert({split[1], std::stof(split[3])});
-		// }
-		// else
-		// {
-		// 	err(E_INPUT, line);
-		// }
 	}
 	file.close();
 }
-
-// need to change logic slightly
-// read everything into container
-// when going over container do the validation of the data
 
 /*----------------------------------------------------------*/
 /* - opens data.csv											*/
