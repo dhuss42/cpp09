@@ -5,8 +5,8 @@
 #include "fstream"
 #include <map>
 #include <regex>
-#include <sstream>
 #include <iomanip>
+#include <ctime>
 
 typedef enum e_errors
 {
@@ -18,11 +18,15 @@ typedef enum e_errors
 	E_EMPTY,
 } t_errors;
 
+// need to use multimap so that duplicates can be stored inside the container
+// map overwrites duplicates
 class BitcoinExchange
 {
 	private:
 		std::string	_filename;
-		std::map<std::string, double> _dataBase;
+		std::string _date;
+		std::multimap<std::string, float> _dataBase;
+		std::multimap<std::string, float> _input;
 	public:
 		BitcoinExchange();
 		BitcoinExchange(std::string filename);
@@ -35,7 +39,9 @@ class BitcoinExchange
 		void	parsing();
 		bool	filterOne(std::ifstream *file);
 		void	mapDataBase();
-		static void	err(t_errors err, std::ifstream* file);
+		void	matchDates(std::string date, std::string value);
+		std::string	todaysDate();
+		static void	err(t_errors err, std::string msg);
 };
 
 #endif

@@ -1,11 +1,16 @@
-#include "BitcoinExchange.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/09 15:37:08 by dhuss             #+#    #+#             */
+/*   Updated: 2025/05/09 15:37:10 by dhuss            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void	exchanger(const std::string& filename)
-{
-	BitcoinExchange btc(filename);
-	// btc.parsing();
-	btc.mapDataBase();
-}
+#include "BitcoinExchange.hpp"
 
 int	main(int argc, char **argv)
 {
@@ -16,7 +21,10 @@ int	main(int argc, char **argv)
 	}
 	else
 	{
-		exchanger(argv[1]);
+		BitcoinExchange btc(argv[1]);
+		std::cout << std::fixed << std::setprecision(2);
+		btc.mapDataBase();
+		btc.parsing();
 	}
 	return (0);
 }
