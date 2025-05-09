@@ -85,6 +85,8 @@ void	BitcoinExchange::parsing()
 			err(E_INPUT, nullptr);
 		std::stringstream	ss(content);
 		std::string token;
+		// get the line without splitting and then use regex to split
+		// then validate the split components
 		while (getline(ss, token, '|'))
 		{
 			if (isdigit(token[0]))
@@ -108,7 +110,28 @@ void	BitcoinExchange::parsing()
 //		look up the closest lower date of the csv data base
 //		extract the exchange rate of that databse
 //		multiply by the value
-
+void	BitcoinExchange::mapDataBase()
+{
+	std::ifstream file("data.csv");
+	if (!file)
+		err(E_FILE, nullptr);
+	std::string line;
+	std::regex pattern("^(\\d{4}-\\d{2}-\\d{2}),(\\d+\\.?\\d*)$");
+	std::smatch split;
+	while (getline(file, line))
+	{
+		if (std::regex_match(line, split, pattern))
+		{
+			_dataBase[split[1].str()] = std::stod(split[2].str());
+		}
+	}
+	std::cout << std::fixed << std::setprecision(2);
+	for (std::map<std::string, double>::iterator it = _dataBase.begin(); it != _dataBase.end(); ++it)
+	{
+		std::cout << it->first << "," << it->second << std::endl;
+	}
+	std:: cout << _dataBase.size() << std::endl;
+}
 
 /*--------------------------*/
 /* handles errors			*/

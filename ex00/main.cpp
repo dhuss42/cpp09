@@ -3,7 +3,8 @@
 void	exchanger(const std::string& filename)
 {
 	BitcoinExchange btc(filename);
-	btc.parsing();
+	// btc.parsing();
+	btc.mapDataBase();
 }
 
 int	main(int argc, char **argv)
