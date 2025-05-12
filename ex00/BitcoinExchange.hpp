@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 15:51:43 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/09 15:51:44 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/12 13:55:02 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,31 +31,28 @@ typedef enum e_errors
 	E_WRONGHEADER,
 } t_errors;
 
-// need to use multimap so that duplicates can be stored inside the container
-// map overwrites duplicates
 class BitcoinExchange
 {
 	private:
 		std::string	_filename;
 		std::string _date;
-		bool	_parseDataBase;
-		std::multimap<std::string, float> _dataBase; // change to map
-		std::multimap<std::string, float> _input;
+		std::map<std::string, float> _dataBase;
 	public:
 		BitcoinExchange();
 		BitcoinExchange(std::string filename);
-		// BitcoinExchange(const BitcoinExchange& src);
-		// BitcoinExchange operator=(const BitcoinExchange& other);
+		BitcoinExchange(const BitcoinExchange& src);
+		BitcoinExchange operator=(const BitcoinExchange& other);
 		~BitcoinExchange();
 
-		bool	validateDate(std::string str);
-		bool	validateValue(std::string);
-		void	parsing();
-		bool	filterOne(std::ifstream *file);
-		void	mapDataBase();
-		void	matchDates(std::string date, std::string value);
 		std::string	todaysDate();
-		static void	err(t_errors err, std::string msg, bool dataBase);
+		bool	dateSpan(int year, int month, int day);
+		bool	validateDate(std::string str);
+		bool	validateValue(std::string str, bool exiting);
+		void	matchDates(std::string date, std::string value);
+		void	extractInput();
+		void	mapDataBase();
+
+		static void	err(t_errors err, std::string msg, bool exiting);
 };
 
 #endif

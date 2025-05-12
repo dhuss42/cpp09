@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 15:51:38 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/09 15:51:40 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/12 14:14:19 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,30 +14,55 @@
 
 //--------Constructors----------//
 
-BitcoinExchange::BitcoinExchange() : _filename("default"), _date("default")
+/*------------------------------*/
+/* Default Constructor			*/
+/*------------------------------*/
+BitcoinExchange::BitcoinExchange() : _filename(""), _date("")
+{
+	std::cout << std::fixed << std::setprecision(2);
+}
+
+/*------------------------------*/
+/* Constructor					*/
+/*------------------------------*/
+BitcoinExchange::BitcoinExchange(std::string filename) : _filename(filename), _date(todaysDate())
+{
+	std::cout << std::fixed << std::setprecision(2);
+}
+
+/*------------------------------*/
+/* Copy Constructor				*/
+/*------------------------------*/
+BitcoinExchange::BitcoinExchange(const BitcoinExchange& src) : _filename(src._filename), _date(src._date), _dataBase(src._dataBase)
 {
 }
 
-BitcoinExchange::BitcoinExchange(std::string filename) : _filename(filename)
+/*----------------------------------*/
+/* Overloaded Assignment Operator	*/
+/*----------------------------------*/
+BitcoinExchange BitcoinExchange::operator=(const BitcoinExchange& other)
 {
+	if (this != &other)
+	{
+		_filename = other._filename;
+		_date = other._date;
+		_dataBase = other._dataBase;
+	}
+	return (*this);
 }
 
+/*------------------------------*/
+/* Destructor					*/
+/*------------------------------*/
 BitcoinExchange::~BitcoinExchange()
 {
 }
 
-//------------------//
+//--------helper----------//
 
-std::string	BitcoinExchange::todaysDate()
-{
-	std::time_t	now;
-	char	time_str[18];
-	now = std::time(nullptr);
-	std::strftime(time_str, sizeof(time_str), "%Y-%m-%d", std::localtime(&now));
-	std::cout << "today's date" << time_str << std::endl;
-	return (time_str);
-}
-
+/*------------------------------------------*/
+/* checks whether the year is a leap year	*/
+/*------------------------------------------*/
 bool	isLeapYear(int year)
 {
 	if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
@@ -45,34 +70,77 @@ bool	isLeapYear(int year)
 	return (false);
 }
 
-//year-month-date |
-// matches stores what is grouped together determined by ()
-// still possible to input invalid years like 1000, need to find out what the lowest valid date is
-//	maybe from the csv file
-// something not correct with the gap year
+//--------public methods----------//
+
+/*--------------------------------------*/
+/* Returns today's date as a string		*/
+/*--------------------------------------*/
+std::string	BitcoinExchange::todaysDate()
+{
+	std::time_t	now;
+	char	time_str[18];
+	now = std::time(nullptr);
+	std::strftime(time_str, sizeof(time_str), "%Y-%m-%d", std::localtime(&now));
+	return (time_str);
+}
+
+/*----------------------------------------------*/
+/*	Checks if the time span is valid			*/
+/*	-	from epoch until current day			*/
+/*----------------------------------------------*/
+bool	BitcoinExchange::dateSpan(int year, int month, int day)
+{
+	std::smatch matches;
+	std::regex pattern("^(\\d{4})-(\\d{2})-(\\d{2})$");
+	if (!std::regex_match(_date, matches, pattern))
+		return (false);
+	if (year >= 1970 && year < std::stoi(matches[1].str()))
+		return (true);
+	else if (year == std::stoi(matches[1].str()))
+	{
+		if (month <= std::stoi(matches[2].str()))
+		{
+			if (day <= std::stoi(matches[3].str()))
+				return (true);
+		}
+	}
+	return (false);
+}
+
+/*------------------------------------------------------*/
+/*	validates the Date format && whether date exists	*/
+/*------------------------------------------------------*/
 bool	BitcoinExchange::validateDate(std::string str)
 {
 	std::smatch matches;
 	std::regex pattern("^(\\d{4})-(\\d{2})-(\\d{2})$");
 	if (!std::regex_match(str, matches, pattern))
-		err(E_DATE, "", false);
+		return (false);
 	int year = std::stoi(matches[1].str());
 	int month = std::stoi(matches[2].str());
 	int day = std::stoi(matches[3].str());
 	const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 ,31};
 	if (month < 1 || month > 12)
-		err(E_DATE, "", false); // maybe return false and then call error from the calling function
+		return (false);
 	int maxDays = daysInMonth[month];
 	if (month == 2 && isLeapYear(year))
 		maxDays = 29;
 	if (day < 1 || day > maxDays)
-		err(E_DATE, "", false);
-	// if (str.compare(_date) > 0) // does not work
-	// 	return (false);
+		return (false);
+	if (!dateSpan(year, month, day))
+		return (false);
 	return (true);
 }
 
-bool	BitcoinExchange::validateValue(std::string str)
+/*------------------------------------------------------*/
+/*	validates the Value									*/
+/*	- catches overflows									*/
+/*	- no negative values								*/
+/*	- if input value not above 1000						*/
+/*	- if data.csv value not above 1e20					*/
+/*		-> prevents the final result from being inf		*/
+/*------------------------------------------------------*/
+bool	BitcoinExchange::validateValue(std::string str, bool exiting)
 {
 	float	num = -1;
 	try
@@ -81,29 +149,36 @@ bool	BitcoinExchange::validateValue(std::string str)
 	}
 	catch(const std::exception& e)
 	{
-		err(E_VALUE, str.c_str(), false);
+		err(E_INPUT, str.c_str(), exiting);
 		return (false);
 	}
 	if (num < 0)
 	{
-		err(E_VALUE, "not a positive number.", false);
+		err(E_VALUE, "not a positive number.", exiting);
 		return (false);
 	}
-	if (num > 1000)
+	if (!exiting && num > 1000)
 	{
-		err(E_VALUE, "too large a number.", false);
+		err(E_VALUE, "too large a number.", exiting);
 		return (false);
 	}
+	if (exiting && num > 1e20)
+		err(E_VALUE, "Exchange rate too high.", exiting);
 	return (true);
 }
 
-// upper boud returns the first iterator where the key is greater than the searched key
+/*----------------------------------------------------------------------------------*/
+/* finds matching dates and multiples exchange rate with value						*/
+/*	-	returns the first iterator where the key is greater than the searched key	*/
+/*	-	subtracts one from iterator to get matching date or closest lower date		*/
+/*	-	prints the multiplied value at date in question								*/
+/*----------------------------------------------------------------------------------*/
 void	BitcoinExchange::matchDates(std::string date, std::string value)
 {
-	std::multimap<std::string, float>::iterator itD = _dataBase.upper_bound(date);
-	if (itD != _dataBase.begin())
-		itD--;
-	std::cout << date << " => " << std::stof(value) << " = " << std::stof(value) * itD->second << std::endl;
+	std::map<std::string, float>::iterator it = _dataBase.upper_bound(date);
+	if (it != _dataBase.begin())
+		it--;
+	std::cout << date << " => " << std::stof(value) << " = " << std::stof(value) * it->second << std::endl;
 }
 
 /*----------------------------------------------------------------------*/
@@ -113,68 +188,64 @@ void	BitcoinExchange::matchDates(std::string date, std::string value)
 /* - matches line to regex pattern and splits it into dates and values	*/
 /* - split dates and values are valdiated								*/
 /*----------------------------------------------------------------------*/
-void	BitcoinExchange::parsing()
+void	BitcoinExchange::extractInput()
 {
-	std::ifstream file(_filename);
-	if (!file)
-		err(E_FILE, "", false);
 	std::string	line;
+	std::ifstream file(_filename);
 	std::smatch	split;
 	std::regex	pattern("^(\\d{4}-\\d{2}-\\d{2})( \\| )([+-]?\\d+[.]?\\d*)$");
+
+	if (!file)
+		err(E_FILE, _filename, true);
+	getline(file, line);
+	if (line.compare("date | value") != 0)
+		err(E_WRONGHEADER, "for input file", true);
 	while (getline(file, line))
 	{
 		if (std::regex_match(line, split, pattern))
 		{
-			if (validateDate(split[1]) && validateValue(split[3]))
+			if (validateDate(split[1]) && validateValue(split[3], false))
 				matchDates(split[1], split[3]);
+			else
+				err(E_INPUT, line, false);
 		}
+		else if (line.empty())
+			err(E_EMPTY, line, false);
+		else
+			err(E_INPUT, line, false);
 	}
 	file.close();
 }
 
-/*----------------------------------------------------------*/
-/* - opens data.csv											*/
-/* - extracts line from file								*/
-/* - splits data and exchange rate with regex				*/
-/* - populate multimap container with date and exchange rate		*/
-/*----------------------------------------------------------*/
+/*--------------------------------------------------------------*/
+/* - opens data.csv												*/
+/* - extracts line from file									*/
+/* - splits data and exchange rate with regex					*/
+/* - populate multimap container with date and exchange rate	*/
+/*--------------------------------------------------------------*/
 void	BitcoinExchange::mapDataBase()
 {
-	// add validation to the .csv file
-		// check name or extension
-		// check if the header in first line is there
-		// check valid format for dates
-			// check date span ? to today
-		// check if exchange rate is valid
-	std::ifstream	file("data.csv");
-	if (!file)
-		err(E_FILE, "data.csv.", true);
 	std::string	line;
+	std::ifstream	file("data.csv");
+	std::regex pattern("^(\\d{4}-\\d{2}-\\d{2}),([+-]?\\d+\\.?\\d*)$");
+	std::smatch split;
+
+	if (!file)
+		err(E_FILE, "data.csv!", true);
 	getline(file, line);
 	if (line.compare("date,exchange_rate") != 0)
-	{
-		file.close();
-		err(E_WRONGHEADER, "data.csv.", true);
-	}
-	// _date = todaysDate();
-	std::regex pattern("^(\\d{4}-\\d{2}-\\d{2}),(\\d+\\.?\\d*)$");
-	std::smatch split;
+		file.close(), err(E_WRONGHEADER, "for data.csv.", true);
 	while (getline(file, line))
 	{
 		if (std::regex_match(line, split, pattern))
 		{
-			if (!validateDate(split[1]))
-			{
-				err(E_INPUT, line, true);
-				file.close();
-			}
-			// validate Value
-			_dataBase.insert({split[1], std::stof(split[2])});
+			if (validateDate(split[1]) && validateValue(split[2], true))
+				_dataBase[split[1]] = std::stof(split[2]);
 		}
+		else if (line.empty())
+			file.close(), err(E_EMPTY, line, true);
 		else
-		{
-			err(E_INPUT, line, true);
-		}
+			file.close(), err(E_INPUT, line, true);
 	}
 	file.close();
 }
@@ -182,27 +253,25 @@ void	BitcoinExchange::mapDataBase()
 /*--------------------------*/
 /* handles errors			*/
 /*--------------------------*/
-void	BitcoinExchange::err(t_errors err, std::string msg, bool dataBase)
+void	BitcoinExchange::err(t_errors err, std::string msg, bool exiting)
 {
 	std::cerr << "\033[31mError: ";
 	if (err == E_ARGS)
-		std::cerr << "Invalid number of arguments.";
+		std::cerr << "invalid number of arguments.";
 	else if (err == E_FILE)
 		std::cerr << "could not open " << msg;
 	else if (err == E_INPUT)
 		std::cerr << "bad input => " << msg;
-	else if (err == E_DATE)
-		std::cerr << "Invalid date format!";
 	else if (err == E_VALUE)
 		std::cerr << msg;
 	else if (err == E_EMPTY)
-		std::cerr << "Input String is empty!";
+		std::cerr << "line is empty!";
 	else if (err == E_WRONGHEADER)
-		std::cerr << "Wrong header!";
-	if (dataBase)
+		std::cerr << "wrong header " << msg;
+	if (exiting)
 	{
 		std::cerr << " Exiting...\033[0m" << std::endl;
-		exit(EXIT_FAILURE);	
+		exit(EXIT_FAILURE);
 	}
 	std::cerr << "\033[0m" << std::endl;
 }
