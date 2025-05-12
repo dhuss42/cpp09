@@ -1,0 +1,18 @@
+Merge-insertion sort / Ford-Johnson sortig algorithm
+	- optimised for making least amount of comparisons
+
+Step 1
+	-	recursion
+	-	pair 2 numbers to gether, sort them in ascrending order, if odd do nothing
+		-> 8 4 5 6 9 7 23 25 5
+		-> [8 4] [5 6] [9 7] [23 25] [5]
+		=> [4 8] [5 6] [7 9] [23 25] [5]
+	-	pair 2 pairs together, sort them according to the last nbr inside each pair
+		-> {[4 8] [5 6]} {[7 9] [23 25]} [5]
+		=> {[5 6] [4 8]} {[7 9] [23 25]} [5]
+	- continue with this paring until it's not possible to create 2 pairs
+
+	-> now start with highest level and go backwards
+
+Step 2
+
