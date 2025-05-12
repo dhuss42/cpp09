@@ -28,6 +28,7 @@ typedef enum e_errors
 	E_DATE,
 	E_VALUE,
 	E_EMPTY,
+	E_WRONGHEADER,
 } t_errors;
 
 // need to use multimap so that duplicates can be stored inside the container
@@ -37,7 +38,8 @@ class BitcoinExchange
 	private:
 		std::string	_filename;
 		std::string _date;
-		std::multimap<std::string, float> _dataBase;
+		bool	_parseDataBase;
+		std::multimap<std::string, float> _dataBase; // change to map
 		std::multimap<std::string, float> _input;
 	public:
 		BitcoinExchange();
@@ -53,7 +55,7 @@ class BitcoinExchange
 		void	mapDataBase();
 		void	matchDates(std::string date, std::string value);
 		std::string	todaysDate();
-		static void	err(t_errors err, std::string msg);
+		static void	err(t_errors err, std::string msg, bool dataBase);
 };
 
 #endif

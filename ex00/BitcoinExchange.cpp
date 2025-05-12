@@ -55,20 +55,20 @@ bool	BitcoinExchange::validateDate(std::string str)
 	std::smatch matches;
 	std::regex pattern("^(\\d{4})-(\\d{2})-(\\d{2})$");
 	if (!std::regex_match(str, matches, pattern))
-		err(E_DATE, nullptr);
+		err(E_DATE, "", false);
 	int year = std::stoi(matches[1].str());
 	int month = std::stoi(matches[2].str());
 	int day = std::stoi(matches[3].str());
 	const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 ,31};
 	if (month < 1 || month > 12)
-		err(E_DATE, nullptr);
+		err(E_DATE, "", false); // maybe return false and then call error from the calling function
 	int maxDays = daysInMonth[month];
 	if (month == 2 && isLeapYear(year))
 		maxDays = 29;
 	if (day < 1 || day > maxDays)
-		err(E_DATE, nullptr);
-	if (!str.compare(_date))
-		return (false);
+		err(E_DATE, "", false);
+	// if (str.compare(_date) > 0) // does not work
+	// 	return (false);
 	return (true);
 }
 
@@ -81,17 +81,17 @@ bool	BitcoinExchange::validateValue(std::string str)
 	}
 	catch(const std::exception& e)
 	{
-		err(E_VALUE, str.c_str());
+		err(E_VALUE, str.c_str(), false);
 		return (false);
 	}
 	if (num < 0)
 	{
-		err(E_VALUE, "not a positive number.");
+		err(E_VALUE, "not a positive number.", false);
 		return (false);
 	}
 	if (num > 1000)
 	{
-		err(E_VALUE, "too large a number.");
+		err(E_VALUE, "too large a number.", false);
 		return (false);
 	}
 	return (true);
@@ -117,7 +117,7 @@ void	BitcoinExchange::parsing()
 {
 	std::ifstream file(_filename);
 	if (!file)
-		err(E_FILE, NULL);
+		err(E_FILE, "", false);
 	std::string	line;
 	std::smatch	split;
 	std::regex	pattern("^(\\d{4}-\\d{2}-\\d{2})( \\| )([+-]?\\d+[.]?\\d*)$");
@@ -148,15 +148,15 @@ void	BitcoinExchange::mapDataBase()
 		// check if exchange rate is valid
 	std::ifstream	file("data.csv");
 	if (!file)
-		err(E_FILE, "data.csv");
+		err(E_FILE, "data.csv.", true);
 	std::string	line;
 	getline(file, line);
 	if (line.compare("date,exchange_rate") != 0)
 	{
-		std::cerr << "Error: wrong header for data.csv. Exiting..." << std::endl;
-		exit(EXIT_FAILURE);
+		file.close();
+		err(E_WRONGHEADER, "data.csv.", true);
 	}
-	_date = todaysDate();
+	// _date = todaysDate();
 	std::regex pattern("^(\\d{4}-\\d{2}-\\d{2}),(\\d+\\.?\\d*)$");
 	std::smatch split;
 	while (getline(file, line))
@@ -165,25 +165,30 @@ void	BitcoinExchange::mapDataBase()
 		{
 			if (!validateDate(split[1]))
 			{
-				std::cerr << "Error: invalid Date for data.csv. Exiting..." << std::endl;
-				exit(EXIT_FAILURE);
+				err(E_INPUT, line, true);
+				file.close();
 			}
 			// validate Value
 			_dataBase.insert({split[1], std::stof(split[2])});
 		}
+		else
+		{
+			err(E_INPUT, line, true);
+		}
 	}
+	file.close();
 }
 
 /*--------------------------*/
 /* handles errors			*/
 /*--------------------------*/
-void	BitcoinExchange::err(t_errors err, std::string msg)
+void	BitcoinExchange::err(t_errors err, std::string msg, bool dataBase)
 {
 	std::cerr << "\033[31mError: ";
 	if (err == E_ARGS)
 		std::cerr << "Invalid number of arguments.";
 	else if (err == E_FILE)
-		std::cerr << "could not open file.";
+		std::cerr << "could not open " << msg;
 	else if (err == E_INPUT)
 		std::cerr << "bad input => " << msg;
 	else if (err == E_DATE)
@@ -192,5 +197,12 @@ void	BitcoinExchange::err(t_errors err, std::string msg)
 		std::cerr << msg;
 	else if (err == E_EMPTY)
 		std::cerr << "Input String is empty!";
+	else if (err == E_WRONGHEADER)
+		std::cerr << "Wrong header!";
+	if (dataBase)
+	{
+		std::cerr << " Exiting...\033[0m" << std::endl;
+		exit(EXIT_FAILURE);	
+	}
 	std::cerr << "\033[0m" << std::endl;
 }
