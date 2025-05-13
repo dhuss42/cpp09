@@ -6,10 +6,6 @@
 #include <vector>
 #include <algorithm>
 
-typedef enum e_errors
-{
-	E_ARGS,
-} t_errors;
 
 class PmergeMe
 {
@@ -19,8 +15,13 @@ class PmergeMe
 		PmergeMe();
 		~PmergeMe();
 
-		void	execute(char **argv);
-		static void	err(t_errors err);
+	typedef enum e_errors
+	{
+		E_ARGS,
+	} t_errors;
+
+	void	execute(char **argv);
+	static void	err(t_errors err);
 };
 
 
