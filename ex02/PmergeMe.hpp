@@ -34,26 +34,38 @@ class PmergeMe
 		E_ARGS,
 	} t_errors;
 
-	// elements need to be paired somehow
-	// maybe use iterator ranges to track positions
+	// elementSize = the size of the element
+	// nbrOfElements = how many elements of size elementSize are in container of size()
+	// goes over container based on elementSize and locates the values of the neighbouring ending nbrs inside an element
+	// compares these values if B > A they are swapped
 	// std::swap_ranges(first1, last1, first2)
 	//	swaps range between first1 and last1 with same range starting from first2
+	// if elementSize has not exceeded
+	// calls FordJohnson recursively with elementSize * 2 -> increase the size of the elements
 	template <typename T>
 	void	FordJohnson(T& container, unsigned long elementSize)
 	{
 		unsigned long	nbrOfElements = container.size() / elementSize;
-		std::cout << "elementSize[" << elementSize << "]: " << "number of Elements: " << nbrOfElements << std::endl;
-		for (int i = 0; i + 2 * elementSize <= container.size(); i += 2 * elementSize) // not correct iteration
+		std::cout << "\033[35melementSize[" << elementSize << "]: " << "number of Elements: \033[0m" << nbrOfElements << std::endl;
+		for (int i = 0; i + 2 * elementSize <= container.size(); i += 2 * elementSize)
 		{
-			T& lastA = container[i + elementSize -1];
-			T& lastB = container[i + 2 * elementSize -1];
-			std::cout << lastA << std::endl;
-			std::cout << lastB << std::endl;
-			// plan is to compare the two neighbouring ending iterators
+			std::cout << "\033[36mrun [" << i << "]\033[0m" << std::endl;
+			auto& lastA = container[i + elementSize - 1];
+        	auto& lastB = container[i + 2 * elementSize - 1];
+			std::cout << "lastA: [" << lastA << "]" << std::endl;
+			std::cout << "lastB: [" << lastB << "]" << std::endl;
+			if (lastB < lastA)
+			{
+				std::cout << "swaped: " << "[" << lastA << "] with [" << lastB << "]" << std::endl;
+				std::swap_ranges(container.begin() + i, container.begin() + i + elementSize, container.begin() + i + elementSize);
+			}
 		}
-
-		// if (!(elementSize > container.size() / 2))
-		// 	FordJohnson(container, elementSize * 2);
+		std::cout << "new container: ";
+		for (auto it = container.begin(); it != container.end(); it++)
+			std::cout << *it << " ";
+		std::cout << "\n" << std::endl;;	
+		if (elementSize * 2 <= container.size())
+			FordJohnson(container, elementSize * 2);
 	};
 
 	void	parsing(int argc, char **argv);
