@@ -1,6 +1,6 @@
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe()
+PmergeMe::PmergeMe() : _jacobsthal(3), _insertions(0)
 {
 }
 
@@ -14,12 +14,39 @@ const	char* PmergeMe::NotPositiveException::what() const noexcept
 	return ("not a Positive value");
 }
 
+const	char* PmergeMe::NotOnlyDigits::what() const noexcept
+{
+	return ("input string does not consist of only digits");
+}
+
+const	char* PmergeMe::StringEmpty::what() const noexcept
+{
+	return ("string is empty");
+}
+
+bool	only_digits(std::string str)
+{
+	size_t start = 0;
+	if (str[0] == '-' || str[0] == '+')
+		start = 1;
+	if (start == str.length())
+		return (false);
+	return (std::all_of(str.begin() + start, str.end(), ::isdigit));
+}
+
 void	PmergeMe::parsing(int argc, char **argv)
 {
+	int n = -1;
 	try{
 		for (int i = 1; i < argc; ++i)
 		{
-			int n = std::stoi(argv[i]);
+			std::string emptyCheck = static_cast<std::string>(argv[i]);
+			if (emptyCheck.empty())
+				throw(StringEmpty());
+			if (only_digits(argv[i]))
+				n = std::stoi(argv[i]);
+			else
+				throw(NotOnlyDigits());
 			if (n >= 0)
 			{
 				_vector.push_back(n);
@@ -87,4 +114,5 @@ void	PmergeMe::err(/* t_errors err,  */std::string msg)
 	// 		break;
 	// }
 	std::cerr << "\033[0m" << std::endl;
+	exit(EXIT_FAILURE);
 }
