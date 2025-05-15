@@ -87,18 +87,20 @@ class PmergeMe
 		// }
 		std::cout << "start main chain: " << *mainStart << std::endl;
 		std::cout << "end main chain: " << *mainEnd << std::endl;
+		// identify insertion point
 		// now determine the middle point between mainChain.begin() and end
 		// maybe recursively call a function that shrinks the scanning range
 		//	find the middle of start and end in main Chain (has to be scaled with elementSize)
 		//	compare the target Value from pend (startPend) to the targetvalue
-		//	if the same insert it after the target value
 		//	if smaller: range is to the left of target value
 		//		mainChain end becomes target value - elementSize
 		//		mainChain start remains the same
-		//		
 		//	if larger: range is to the right of the target value
 		//		main Chain end remains the same
 		//		main Chain Start is target value + elementSize
+		//	if the same insert it after the target value
+
+		// insertion logic
 		(void) pend;
 		(void) elementSize;
 	}
