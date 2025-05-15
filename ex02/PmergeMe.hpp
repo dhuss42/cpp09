@@ -61,7 +61,7 @@ class PmergeMe
 	}
 
 	//	0 1 1 3 5 11
-	void	JacobsthalNumber(int& previous, int& current)
+	void	updateJacobsthal(int& previous, int& current)
 	{
 		_jacobsthal = 2 * previous + current;
 		previous = current;
@@ -78,12 +78,35 @@ class PmergeMe
 	template <typename T>
 	void	binarySearch(T& mainChain, T& pend, unsigned long elementSize)
 	{
-		auto end = mainChain.begin() + (_jacobsthal - _insertions);
-		std::cout << "end main chain: " << *end << std::endl;
+		auto mainStart = mainChain.begin() + elementSize - 1;
+		auto mainEnd = mainChain.begin() + (_jacobsthal - _insertions) * elementSize - 1;
+		// if (end > mainChain.end() - 1)
+		// {
+		// 	std::cout << "wrap around" << std::endl;
+		// 	end = mainChain.end() - 1; // not sure here yet
+		// }
+		std::cout << "start main chain: " << *mainStart << std::endl;
+		std::cout << "end main chain: " << *mainEnd << std::endl;
+		// now determine the middle point between mainChain.begin() and end
+		// maybe recursively call a function that shrinks the scanning range
+		//	find the middle of start and end in main Chain (has to be scaled with elementSize)
+		//	compare the target Value from pend (startPend) to the targetvalue
+		//	if the same insert it after the target value
+		//	if smaller: range is to the left of target value
+		//		mainChain end becomes target value - elementSize
+		//		mainChain start remains the same
+		//		
+		//	if larger: range is to the right of the target value
+		//		main Chain end remains the same
+		//		main Chain Start is target value + elementSize
 		(void) pend;
 		(void) elementSize;
 	}
 
+	//	use Jacobsthal as loop condition
+	//	if its the matching index is not in the pend
+	//	subtract the starting position until it reaches 0
+	//	then increase to the next one
 
 	// binary insertion sort
 	//	select correct element from pend based on Jacobsthal starting from 3
@@ -95,47 +118,28 @@ class PmergeMe
 		std::cout << "\033[32m\n============== Step 3 ==============\033[0m" << std::endl;
 		T mainChain = chains.first;
 		T pend = chains.second;
+
 		int current = 1;
 		int	previous = 1;
 		if (pend.size() < 1)
 			return ;
-		JacobsthalNumber(previous, current);
-		std::cout << "jacobsthalnumber: " << _jacobsthal << std::endl;
-		std::cout << "pend.size: " << pend.size() << std::endl;
-		int run = 0;
-
-		// I want to find the element Index from which I need to start
-		for (size_t i = 0 ; i + elementSize <= pend.size(); i += elementSize)
+		updateJacobsthal(previous, current);
+		auto start = pend.begin() + (_jacobsthal - previous) * elementSize - 1;
+		for (auto end = pend.begin() + elementSize - 1; start >= end;)
 		{
-			std::cout << "run [" << run++ << "]" << std::endl;
-			size_t elementIndex = i / elementSize; // using this as condition to check with jacobsthal is wrong, the start in the pend needs to be calculated differently
-			// the start of the pend is the current _jacobsthal - the previous one or something similiar
-			auto pendToInsert = pend.begin() + elementIndex * elementSize;
-			// auto start = pend.begin() + i;
-			// auto end = start + elementSize;
-
-			std::cout << "elementIndex [" << elementIndex << "]" << std::endl;
-			std::cout << "pendToInsert [" << *pendToInsert << "]" << std::endl;
-			if (_jacobsthal == elementIndex)
+			std::cout << "start: " << *start << std::endl;
+			std::cout << "end: " << *end << std::endl;
+			binarySearch(mainChain, pend, elementSize);
+			if (start == end)
 			{
-				// std:: cout << "Pend start: " << *start << std::endl;
-				// std:: cout << "Pend end: " << *end << std::endl;
-				binarySearch(mainChain, pend, elementSize);
-				// insert the element in main Chain
-				// then start loop going backwards and inserting the elements until there are non below the current jacobsthal
-				// then update the jacbosthal
+				updateJacobsthal(previous, current);
+				std::cout << "updating jacobsthal to: " << _jacobsthal << std::endl;
 			}
-			// else if (_jacobsthal > elementIndex)
-			// {
-			// 	std::cout << "start inserting from the back" << std::endl;
-			// }
-			// else if the Jobsthal is larger
-			//	// insert going from the back
-			// else if it is larger update to next Jacobsthal
+			for (unsigned long i = 0; i < elementSize; i++) // decrements in elementSize
+				start--;
 		}
-		// std::cout << "\n\n\n";
-		// printContainer(mainChain, elementSize);
-		// printContainer(pend, elementSize);
+
+	
 	}
 
 	/*----------------------------------------------*/
