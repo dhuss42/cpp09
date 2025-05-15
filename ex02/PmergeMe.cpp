@@ -78,19 +78,16 @@ void	PmergeMe::execute(int argc, char **argv)
 	std::cout << "Before:\t";
 	std::copy(_vector.begin(), _vector.end(), std::ostream_iterator<int>(std::cout, " "));
 
-	// std::vector<int> sorted(_vector);
-	// std::stable_sort(sorted.begin(), sorted.end());
-	// std::cout << "\nAfter:\t";
-	// std::copy(sorted.begin(), sorted.end(), std::ostream_iterator<int>(std::cout, " ")); // probaly print the actual sorted result
-	// std::cout << std::endl;
 	auto	start = std::chrono::high_resolution_clock::now();
-	FordJohnson(_vector, 1);
+	auto sorted = FordJohnson(_vector, 1, 1);
 	auto	end = std::chrono::high_resolution_clock::now();
 	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
 	std::cout << "\nAfter:\t";
-	printContainer(_vector, 0);
+	printContainer(sorted, 0);
 	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
+	if (is_sorted(sorted.begin(), sorted.end()))
+		std::cout << "it's sorted my friend" << std::endl;
 	// std::cout << "Time to process a range of " << _deque.size() << " elements with std::vector : " << "time us" << std::endl;
 
 	//	- do same with deque
@@ -103,18 +100,7 @@ void	PmergeMe::execute(int argc, char **argv)
 void	PmergeMe::err(/* t_errors err,  */std::string msg)
 {
 	std::cerr << "\033[31mError: " << msg;
-	// switch (err)
-	// {
-	// 	case (E_ARGS):
-	// 		std::cerr << msg;
-	// 		break;
-	// 	case (E_NEGATIVE)
-	// 		std::cerr << msg;
-	// 	case (E_RANGE)
-	// 		std::cerr << msg;
-	// 	default:
-	// 		break;
-	// }
+
 	std::cerr << "\033[0m" << std::endl;
 	exit(EXIT_FAILURE);
 }
