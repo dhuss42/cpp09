@@ -1,6 +1,6 @@
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe() : _jacobsthal(3), _insertions(0)
+PmergeMe::PmergeMe() : _jacobsthal(3), _insertions(0), _right(true)
 {
 }
 
@@ -78,16 +78,18 @@ void	PmergeMe::execute(int argc, char **argv)
 	std::cout << "Before:\t";
 	std::copy(_vector.begin(), _vector.end(), std::ostream_iterator<int>(std::cout, " "));
 
-	std::vector<int> sorted(_vector);
-	std::stable_sort(sorted.begin(), sorted.end());
-	std::cout << "\nAfter:\t";
-	std::copy(sorted.begin(), sorted.end(), std::ostream_iterator<int>(std::cout, " ")); // probaly print the actual sorted result
-	std::cout << std::endl;
+	// std::vector<int> sorted(_vector);
+	// std::stable_sort(sorted.begin(), sorted.end());
+	// std::cout << "\nAfter:\t";
+	// std::copy(sorted.begin(), sorted.end(), std::ostream_iterator<int>(std::cout, " ")); // probaly print the actual sorted result
+	// std::cout << std::endl;
 	auto	start = std::chrono::high_resolution_clock::now();
 	FordJohnson(_vector, 1);
 	auto	end = std::chrono::high_resolution_clock::now();
 	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
+	std::cout << "\nAfter:\t";
+	printContainer(_vector, 0);
 	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
 	// std::cout << "Time to process a range of " << _deque.size() << " elements with std::vector : " << "time us" << std::endl;
 
