@@ -72,42 +72,51 @@ class PmergeMe
 	template <typename Iterator>
 	auto identifyInsertionPoint(Iterator mainStart, Iterator mainEnd, Iterator currentPend, unsigned long elementSize)
 	{
-		// std::cout << "\033[36m\n--------- identifyInsertionPoint ---------\033[0m" << std::endl;
-		// std::cout << "mainStart: " << *mainStart << std::endl;
-		// std::cout << "mainEnd: " << *mainEnd << std::endl;
+		std::cout << "\033[36m\n--------- identifyInsertionPoint ---------\033[0m" << std::endl;
+		std::cout << "mainStart: " << *mainStart << std::endl;
+		std::cout << "mainEnd: " << *mainEnd << std::endl;
+		// maybe save the endpoint so that the
 		while (std::distance(mainStart, mainEnd) >= 0)
 		{
 			long dist = std::distance(mainStart, mainEnd);
 			long distToMiddle = (dist / 2 / elementSize) * elementSize;
 			auto mainMiddle = std::next(mainStart, distToMiddle);
-			// std::cout << "mainMiddle: " << *mainMiddle << std::endl;
-			// std::cout << "currentPend: " << *currentPend << std::endl;
+			std::cout << "mainMiddle: " << *mainMiddle << std::endl;
+			std::cout << "currentPend: " << *currentPend << std::endl;
+			std::cout << "dist: " << dist << std::endl;
 
 			if (*currentPend < *mainMiddle)
 			{
-				// std::cout << "smaller: " << *currentPend << " < " << *mainMiddle << std::endl;
+				_comparisons++;
+				std::cout << "\033[34mnumber of comparisons: \033[0m" << _comparisons << std::endl;
+				std::cout << "smaller: " << *currentPend << " < " << *mainMiddle << std::endl;
 				_right = false;
 				if (mainMiddle == mainStart)
 					break ;
 				mainEnd = std::prev(mainMiddle, elementSize);
-				// std::cout << "mainEnd: " << *mainEnd << std::endl;
+				std::cout << "mainStart: " << *mainEnd << std::endl;
+				std::cout << "mainEnd: " << *mainEnd << std::endl;
 			}
 			else if (*currentPend > *mainMiddle)
 			{
+				_comparisons++;
+				std::cout << "\033[34mnumber of comparisons: \033[0m" << _comparisons << std::endl;
 				_right = true;
-				// std::cout << "larger: " << *currentPend << " > " << *mainMiddle <<std::endl;
+				std::cout << "larger: " << *currentPend << " > " << *mainMiddle <<std::endl;
 				if (mainMiddle == mainEnd)
 					break ;
 				mainStart = std::next(mainMiddle, elementSize);
-				// std::cout << "mainStart: " << *mainEnd << std::endl;
+				std::cout << "mainStart: " << *mainEnd << std::endl;
+				std::cout << "mainEnd: " << *mainEnd << std::endl;
 			}
 			else
 			{
 				_right = true;
-				// std::cout << "middle" << std::endl;
+				_comparisons++;
+				std::cout << "\033[34mnumber of comparisons: \033[0m" << _comparisons << std::endl;
+				std::cout << "middle" << std::endl;
 				return (mainMiddle++);
 			}
-			_comparisons++;
 		}
 		return (mainStart);
 	}
@@ -132,19 +141,23 @@ class PmergeMe
 	template <typename T, typename Iterator>
 	void	binarySearch(T& mainChain, T& pend, unsigned long elementSize, Iterator currentPend)
 	{
-		// std::cout << "\033[34m\n--------- binary Search ---------\033[0m" << std::endl;
-		// std::cout << "number of insertions:\t" << _insertions << std::endl;
-		// std::cout << "(jacobsthal + insertions) * elementSize - 1" << "\n" << "(" << _jacobsthal << "+" << _insertions << ") * " << elementSize << "- 1" << std::endl;
-		// std::cout << "=> " << (_jacobsthal + _insertions) * elementSize - 1 << std::endl;
+		std::cout << "\033[34m\n--------- binary Search ---------\033[0m" << std::endl;
+		std::cout << "number of insertions:\t" << _insertions << std::endl;
+		std::cout << "(jacobsthal + insertions) * elementSize - 1" << "\n" << "(" << _jacobsthal << "+" << _insertions << ") * " << elementSize << "- 1" << std::endl;
+		std::cout << "=> " << (_jacobsthal + _insertions) * elementSize - 1 << std::endl;
 		auto mainStart = std::next(mainChain.begin(), elementSize - 1);
 		// the jacobsthal provides the index for b and a, after instering we need to account for this difference in mainChain, multiply by elementSize for scaling, -1 for last element of the block
 		typename T::iterator mainEnd;
 		setStartingPoint(mainChain, mainEnd, _insertions * (-1), elementSize);
+		std::cout << "\033[34mdifference: [" << std::distance(mainStart, mainEnd) << "]\033[0m" << std::endl;
+		if (std::distance(mainStart, mainEnd) % 2 != 0)
+			mainEnd = std::prev(mainEnd, elementSize);
+		// when mainStart until mainEnd is an even distance than move one elementSize back
 
-		// std::cout << "start main chain: " << *mainStart << std::endl;
-		// std::cout << "end main chain: " << *mainEnd << std::endl;
+		std::cout << "start main chain: " << *mainStart << std::endl;
+		std::cout << "end main chain: " << *mainEnd << std::endl;
 		auto insertionPoint = identifyInsertionPoint(mainStart, mainEnd, currentPend, elementSize);
-		// std::cout << "\033[34mmainMiddle chain: \033[0m" << *insertionPoint << std::endl;
+		std::cout << "\033[34mmainMiddle chain: \033[0m" << *insertionPoint << std::endl;
 
 		auto insertStart = std::prev(currentPend, elementSize -1);
 		auto insertEnd = std::next(currentPend);
@@ -157,10 +170,10 @@ class PmergeMe
 		mainChain.insert(insertionTarget, insertStart, insertEnd);
 		pend.erase(insertStart, insertEnd);
 		_insertions++;
-		// std::cout << "mainChain after Insetion:\t";
-		// printContainer(mainChain, elementSize);
-		// std::cout << "pend after Insetion:\t";
-		// printContainer(pend, elementSize);
+		std::cout << "mainChain after Insetion:\t";
+		printContainer(mainChain, elementSize);
+		std::cout << "pend after Insetion:\t";
+		printContainer(pend, elementSize);
 	}
 
 	/*------------------------------------------------------------------------------------------*/
@@ -177,7 +190,7 @@ class PmergeMe
 	template <typename T>
 	void	binaryInsertionSort(std::pair<T, T> &chains, unsigned long elementSize, T& container)
 	{
-		// std::cout << "\033[32m\n============== Step 3 ==============\033[0m" << std::endl;
+		std::cout << "\033[32m\n============== Step 3 ==============\033[0m" << std::endl;
 		T& mainChain = chains.first;
 		T& pend = chains.second;
 
@@ -187,32 +200,33 @@ class PmergeMe
 			return ;
 		updateJacobsthal(previous, current);
 		typename T::iterator start;
-		// std::cout << "start index is:\n\t(" << _jacobsthal << " - " << previous << ") * " << elementSize << " - 1" << std::endl;
-		// std::cout << (_jacobsthal - previous) * elementSize - 1 << std::endl;
+		std::cout << "start index is:\n\t(" << _jacobsthal << " - " << previous << ") * " << elementSize << " - 1" << std::endl;
+		std::cout << "=> " << (_jacobsthal - previous) * elementSize - 1 << std::endl;
 		setStartingPoint(pend, start, previous, elementSize);
 		for (auto end = std::next(pend.begin(), elementSize - 1); start >= end && pend.size() > 0;)
 		{
-			// std::cout << "\033[32mpend.size(): \033[0m" << pend.size() << std::endl;
-			// std::cout << "startPend: " << *start << std::endl;
-			// std::cout << "endPend: " << *end << std::endl;
+			std::cout << "\033[32mpend.size(): \033[0m" << pend.size() << std::endl;
+			std::cout << "startPend: " << *start << std::endl;
+			std::cout << "endPend: " << *end << std::endl;
 			binarySearch(mainChain, pend, elementSize, start);
 			if (start == end)
 			{
 				updateJacobsthal(previous, current);
-				// std::cout << "updating jacobsthal to: " << _jacobsthal << std::endl;
-				// std::cout << "updating previous jacobsthal to: " << previous << std::endl;
+				std::cout << "updating jacobsthal to: " << _jacobsthal << std::endl;
+				std::cout << "updating previous jacobsthal to: " << previous << std::endl;
 				setStartingPoint(pend, start, previous, elementSize);
 			}
 			else
 				start = std::prev(start, elementSize);
 		}
-		// std::cout << "\033[32mcontainer.size(): \033[0m" << container.size() << std::endl;
-		// std::cout << "\033[32mmainChain.size(): \033[0m" << mainChain.size() << std::endl;
+		std::cout << "\033[32mcontainer.size(): \033[0m" << container.size() << std::endl;
+		std::cout << "\033[32mmainChain.size(): \033[0m" << mainChain.size() << std::endl;
 		auto restStart = container.end() - (container.size() - mainChain.size());
-		// std::cout << "\033[33mrestStart value: \033[0m" << *restStart << std::endl;
+		std::cout << "\033[33mrestStart value: \033[0m" << *restStart << std::endl;
 
 		mainChain.insert(mainChain.end(), restStart, container.end());
 		container = mainChain;
+		_insertions = 0;
 	}
 
 	/*----------------------------------------------*/
@@ -226,14 +240,14 @@ class PmergeMe
 	template <typename T>
 	std::pair<T, T>	createChains(T& container, unsigned long elementSize)
 	{
-		// std::cout << "\033[33m\n============== Step 2 ==============\033[0m" << std::endl;
+		std::cout << "\033[33m\n============== Step 2 ==============\033[0m" << std::endl;
 		T	mainChain;
 		T	pend;
 
-		// std::cout << "container:\t";
-		// printContainer(container, elementSize);
-		// unsigned long	nbrOfElements = container.size() / elementSize;
-		// std::cout << "\033[36mnumber of Elements: " << nbrOfElements << " // elementSize [" << elementSize << "]\033[0m" << std::endl;
+		std::cout << "container:\t";
+		printContainer(container, elementSize);
+		unsigned long	nbrOfElements = container.size() / elementSize;
+		std::cout << "\033[36mnumber of Elements: " << nbrOfElements << " // elementSize [" << elementSize << "]\033[0m" << std::endl;
 		for (size_t i = 0 ; i + elementSize <= container.size(); i += elementSize)
 		{
 			size_t elementIndex = i / elementSize;
@@ -244,12 +258,12 @@ class PmergeMe
 			else
 				pend.insert(pend.end(), start, end);
 		}
-		// std::cout << "container:\t";
-		// printContainer(container, elementSize);
-		// std::cout << "mainChain:\t";
-		// printContainer(mainChain, elementSize);
-		// std::cout << "the pend:\t";
-		// printContainer(pend, elementSize);
+		std::cout << "container:\t";
+		printContainer(container, elementSize);
+		std::cout << "mainChain:\t";
+		printContainer(mainChain, elementSize);
+		std::cout << "the pend:\t";
+		printContainer(pend, elementSize);
 		return (std::make_pair(mainChain, pend));
 	}
 
@@ -266,12 +280,12 @@ class PmergeMe
 	template <typename T>
 	T	FordJohnson(T& container, long elementSize, int counter)
 	{
-		// std::cout << "\033[35\nm============== Step 1 ==============\033[0m" << std::endl;
-		// unsigned long	nbrOfElements = container.size() / elementSize;
-		// std::cout << "\033[35mnumber of Elements: " << nbrOfElements << " // elementSize [" << elementSize << "]\033[0m" << std::endl;
+		std::cout << "\033[35\nm============== Step 1 ==============\033[0m" << std::endl;
+		unsigned long	nbrOfElements = container.size() / elementSize;
+		std::cout << "\033[35mnumber of Elements: " << nbrOfElements << " // elementSize [" << elementSize << "]\033[0m" << std::endl;
 
-		// std::cout << "unsorted container:\t";
-		// printContainer(container, elementSize);
+		std::cout << "unsorted container:\t";
+		printContainer(container, elementSize);
 
 		for (auto it = container.begin(); std::distance(it, container.end()) >= 2 * elementSize; it += 2 * elementSize)
 		{
@@ -284,15 +298,16 @@ class PmergeMe
 				std::swap_ranges(itA, itA + elementSize, itB);
 			}
 			_comparisons++;
+			std::cout << "\033[34mnumber of comparisons: \033[0m" << _comparisons << std::endl;
 		}
 		_insertions = 0;
-		// std::cout << "sorted container:\t";
-		// printContainer(container, elementSize);
+		std::cout << "sorted container:\t";
+		printContainer(container, elementSize);
 		std::pair<T, T> chains;
 		if (static_cast<unsigned long>(elementSize) * 2 <= container.size())
 		{
 			FordJohnson(container, elementSize * 2, counter + 1);
-			// std::cout << "\033\n[31mrecursion level [" << counter << "]\033[0m" << std::endl;
+			std::cout << "\033\n[31mrecursion level [" << counter << "]\033[0m" << std::endl;
 			chains = createChains(container, elementSize);
 			binaryInsertionSort(chains, elementSize, container);
 		}

@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 15:26:09 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/14 10:03:53 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/19 15:47:12 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,11 @@ int	main(int argc, char **argv)
 
 // handle Input higher than INT_MAX
 // check with duplicates
-// check with deque
-//	problem with deque probably the way iterators are advanced inside the algorithm
+
+//	251 6 183 286 256 291 364 335 43 19
+// => 23 comparisons but it should be 22
+// _> the problem is the logic when calculating the end point in the main, it should be one earlier
+
+// mainChain:       | 6 251  | 183 286  | 335 364
+// the pend:        | 256 291  | 19 43
+
