@@ -195,7 +195,7 @@ class PmergeMe
 				start = pend.begin() + (_jacobsthal - previous) * elementSize - 1;
 				auto newStart = (_jacobsthal - previous) * elementSize - 1;
 				if (newStart >= pend.size())
-					newStart = pend.size() - 1;
+					newStart = pend.size() -1;
 				start = pend.begin() + newStart;
 				// std::cout << "startPend is at: " << *start << std::endl;
 				// std::cout << "endPend is at: " << *end << std::endl;
@@ -258,7 +258,7 @@ class PmergeMe
 	/* - when recursion is resolved it returns the sorted container											*/
 	/*------------------------------------------------------------------------------------------------------*/
 	template <typename T>
-	T	FordJohnson(T& container, long elementSize, int counter)
+	T	FordJohnson(T& container, unsigned long elementSize, int counter)
 	{
 		std::cout << "\033[35\nm============== Step 1 ==============\033[0m" << std::endl;
 		unsigned long	nbrOfElements = container.size() / elementSize;
@@ -267,34 +267,22 @@ class PmergeMe
 		std::cout << "unsorted container:\t";
 		printContainer(container, elementSize);
 
-		for (auto it = container.begin(); std::distance(it, container.end()) >= 2 * elementSize; it += 2 * elementSize)
+		for (int i = 0; i + 2 * elementSize <= container.size(); i += 2 * elementSize)
 		{
-			auto itA = it;
-			auto itB = it + elementSize;
-			auto& lastA = *(itA + elementSize - 1);
-			auto& lastB = *(itB + elementSize - 1);
+			std::cout << "\033[36mrun [" << i << "]\033[0m" << std::endl;
+			auto& lastA = container[i + elementSize - 1];
+        	auto& lastB = container[i + 2 * elementSize - 1];
 			if (lastB < lastA)
 			{
-				std::swap_ranges(itA, itA + elementSize, itB);
+				std::swap_ranges(container.begin() + i, container.begin() + i + elementSize, container.begin() + i + elementSize);
 			}
-    		_comparisons++;
+			_comparisons++;
 		}
-		// for (int i = 0; i + 2 * elementSize <= container.size(); i += 2 * elementSize)
-		// {
-		// 	std::cout << "\033[36mrun [" << i << "]\033[0m" << std::endl;
-		// 	auto& lastA = container[i + elementSize - 1];
-        // 	auto& lastB = container[i + 2 * elementSize - 1];
-		// 	if (lastB < lastA)
-		// 	{
-		// 		std::swap_ranges(container.begin() + i, container.begin() + i + elementSize, container.begin() + i + elementSize);
-		// 	}
-		// 	_comparisons++;
-		// }
 		_insertions = 0;
 		std::cout << "sorted container:\t";
 		printContainer(container, elementSize);
 		std::pair<T, T> chains;
-		if (static_cast<unsigned long>(elementSize) * 2 <= container.size())
+		if (elementSize * 2 <= container.size())
 		{
 			FordJohnson(container, elementSize * 2, counter + 1);
 			std::cout << "\033\n[31mrecursion level [" << counter << "]\033[0m" << std::endl;

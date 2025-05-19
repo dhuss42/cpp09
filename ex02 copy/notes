@@ -1,0 +1,179 @@
+Merge-insertion sort / Ford-Johnson sortig algorithm
+	- optimised for making least amount of comparisons
+	- units operated on are elements
+	- smallest element in each pair is b
+	- biggest element is a
+	- index of pair is ax / bx
+	- bound element is indexed the same (b2 and a2)
+
+Jacobsthal numbers
+	- starts with 0 and 1s
+	- the next number is formed by adding it's preceding number with that preceding it times 2
+		-> 0 x 2 + 1 = 1
+			=> 0; 1; 1
+		-> 1 x 2 + 1 = 3
+			=> 0; 1; 1; 3
+		-> 1 x 2 + 3 = 5
+			etc.
+
+Step 1
+	-	recursion
+	-	pair 2 numbers to gether, sort them in ascrending order, if odd do nothing
+		-> 8 4 5 6 9 7 23 25 5
+		-> [8 4] [5 6] [9 7] [23 25] [5]
+		=> [4 8] [5 6] [7 9] [23 25] [5]
+	-	pair 2 pairs together, sort them according to the last nbr inside each pair
+		-> {[4 8] [5 6]} {[7 9] [23 25]} [5]
+		=> {[5 6] [4 8]} {[7 9] [23 25]} [5]
+	- continue with this paring until it's not possible to create 2 pairs
+
+	-> now start with highest level and go backwards
+
+Step 2
+		{[5 6] [4 8]} {[7 9] [23 25]} [5]
+				  b1			  a1
+	-> Create a Sequence out of the smallest element of the smallest pair -> b1 and the a's
+		-> the main chain
+			{[5 6] [4 8]} {[7 9] [23 25]}
+				  b1			  a1
+		-> should be sorted in the sense that the biggest number in each element is sorteds
+	-> Create the sequence of the rest of b's (start from b2) and the odd element if there is any
+		-> the pend
+			empty
+	-> if there are elements that cannot form a single element they are ignored
+			[5]
+
+	-> nothing to do so go down 1 level
+		[5 6] [4 8] [7 9] [23 25] [5]
+		   b1	 a1    b2	   a2
+		-> main-chain: [5 6] [4 8]	[23 25]
+						  b1	a1		a2
+		-> pend:		[7 9]
+							b2
+		-> non-participating:	[5]
+
+	=> now step 3
+Step 3
+	-> binary insert the elements from the pend into the main based on Jacobsthal numbers
+	-> if it's not possible using Jacobsthal numbers then insert them in reverse order
+	-> Binary Search
+		- search algorithm that finds the position of a target value within a sorted array
+		- target value is compared to the middle element of the array
+							trgt						half
+		value:	[1]	[3]	[4]	[6]	[7]	[8]	[10]	[13]	[14] [18] [19] [21] [24] [37] [40] [45] [71]
+		index: 	{0}	{1}	{2}	{3}	{4}	{5}	{6}		{7}		{8}
+			=> 7 < 14
+		- if they are not equal the half in which the target cannot lie is eliminated
+		- Search continues in remaining half, using the middle of that half
+							half
+		value:	[1]	[3]	[4]	[6]	[7]	[8]	[10]	[13]
+		index: 	{0}	{1}	{2}	{3}	{4}	{5}	{6}		{7}
+			=> 7 > 6
+		- This is repeated until the element is found
+					half
+		value:	[7]	[8]	[10]	[13]
+		index: 	{0}	{1}	{2}		{3}
+			=> 7 < 8
+			=> 7
+		- if the remaining half is empty and the end of the search the target is no in the array
+	-> Binary Insertion Sort
+		- explanatory video	https://www.youtube.com/watch?v=-OVB5pOZJug
+		- Insertion sort
+			-> unsorted array, start from the left and iterate over the elements to make a sorted sub array on the left
+			1.	[3] [7] [1] [4] [6] [2] [5]
+			2. 	[3] [7] [1] [4] [6] [2] [5]
+			3. 	[1] [3] [7] [4] [6] [2] [5]
+			4. 	[1] [3] [4] [7] [6] [2] [5]
+			etc.
+		- Binary Insertion sort
+			-> uses binary search to locate the position in which the target value should be inserted
+
+				half	trgt
+			1.	[3]		[7]	[1]	[4] [6] [2] [5]
+				=> 7 > 3
+
+				half		trgt
+			2. 	[3] [7]		[1] [4] [6] [2] [5]
+				=> 1 < 3
+
+					half		trgt
+			3. 	[1] [3] [7]		[4] [6] [2] [5]
+				=> 4 > 3
+				[7]
+				=> 4 < 7
+
+
+					half			trgt
+			4. 	[1] [3] [4] [7]		[6] [2] [5]
+				=>	6 > 3
+				[4]	[7]
+				=>	6 > 4
+				[7]
+				=> 	6 < 7
+
+						half			trgt
+			5.	[1] [3] [4] [6]	[7]		[2] [5]
+				=>	2 < 4
+				[1]	[3]
+				=>	2 > 1
+				[3]
+				=>	2 < 3
+
+						half				trgt
+			6.	[1] [2] [3] [4]	[6]	[7]		[5]
+				=>	5 > 3
+				[4] [6] [7]
+				=>	5 < 6
+				[4]
+				=>	5 > 4
+
+			6.	[1] [2] [3] [4]	[5]	[6]	[7]
+
+			-> is optimal in terms of comparisons
+			-> the time complexity however is not more optimal than insertion sort, as the elements still need be placed at the correct position
+				-> require iteration to the correct spot
+			-> if there are double just consistently insert on the same side (right or left)
+		- Jacobsthal numbers
+			-> insertion from the pend is dictated by the Jacobsthal numbers
+			-> cuts the number of comparisons even further
+				-> limits the span of elements the target needs to be compared to
+			-> start from the Jacobsthal number 3
+				-> first 3 then 2
+				-> then 5 and 4
+				-> then 11 to 6
+				-> etc.
+
+		-> continue with earlier example
+
+						[5 6] [4 8] [7 9] [23 25] [5]
+							b1	 a1    b2	  a2
+
+				-> main-chain: [5 6] [4 8]	[23 25]
+								b1	a1		a2
+				-> pend:		[7 9]
+									b2
+				-> non-participating:	[5]
+			->	b2 will be inserted
+			-> it's bound element is a2 => we know b2 is smaller than a2
+				-> we need to insert into {b1, a1}
+			=> [5 6] [4 8] [7 9] [23 25] [5]
+
+		REcursion level 1
+			[5]	[6]	[4]	[8]	[7]	[9]	[23]	[25]	[5]
+			b1	a1	b2	a2	b3	a3	b4		a4		b5
+
+				-> main-chain:	[5]	[6]	[8]	[9]	[25]
+								b1	a1	a2	a3	a4
+				->	pend:		[4]	[7]	[23]	[5]
+								b2	b3	b4		b5
+			Jacobsthal: 3 {b3} into {b1; a1; a2} with binary insertion sort
+			=>	5 6 {7} 8
+			Jacobsthal: 3 {b2} into {b1; a1}
+			=>	{4} 5 6
+			Jacobsthal: 5 {b5} into {b2; b1; a1; b3; a2; a3; a4}
+			=>	4 5 {5} 6 7 8 9 25
+			Jacobsthal: 4 {b4} into {b2; b1; b5; a1; b3; a2; a3}
+			=>	4 5 5 6 7 8 9 {23} 25
+
+Step 1 will occur until no bigger pairs can be formed
+-> apply Step 2 and 3 to every recursion level

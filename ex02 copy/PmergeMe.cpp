@@ -132,19 +132,19 @@ void	PmergeMe::execute(int argc, char **argv)
 
 	std::cout << "Before:\t";
 	// std::copy(_vector.begin(), _vector.end(), std::ostream_iterator<int>(std::cout, " "));
-	// printContainer(_vector, 0);
+	printContainer(_vector, 0);
 
-	// auto	start = std::chrono::high_resolution_clock::now();
-	// auto sorted = FordJohnson(_vector, 1, 1);
-	// auto	end = std::chrono::high_resolution_clock::now();
-	// auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	auto	start = std::chrono::high_resolution_clock::now();
+	auto sorted = FordJohnson(_vector, 1, 1);
+	auto	end = std::chrono::high_resolution_clock::now();
+	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-	// std::cout << "\nAfter:\t";
-	// printContainer(sorted, 0);
-	// std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
-	// if (is_sorted(sorted.begin(), sorted.end()))
-	// 	std::cout << "it's sorted my friend" << std::endl;
-	// std::cout << "the number of comparisons is: " << _comparisons << std::endl;
+	std::cout << "\nAfter:\t";
+	printContainer(sorted, 0);
+	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
+	if (is_sorted(sorted.begin(), sorted.end()))
+		std::cout << "it's sorted my friend" << std::endl;
+	std::cout << "the number of comparisons is: " << _comparisons << std::endl;
 
 	std::cout << "\nDeque:\t";
 	printContainer(_deque, 0);
