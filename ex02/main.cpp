@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 15:26:09 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/19 15:47:12 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/19 15:55:44 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,10 @@ int	main(int argc, char **argv)
 // _> the problem is the logic when calculating the end point in the main, it should be one earlier
 
 // mainChain:       | 6 251  | 183 286  | 335 364
+//						b1		a1			a2
 // the pend:        | 256 291  | 19 43
+//						b2			b3
 
+//	1. 291 > 251
+//	2. 291 > 286 => here should stop because we know a2 > b2
+//
