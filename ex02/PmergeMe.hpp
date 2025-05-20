@@ -17,6 +17,9 @@ class PmergeMe
 		size_t	_insertions;
 		size_t	_comparisons;
 		bool	_right;
+		size_t	_rightCounter = 0;
+		size_t	_leftCounter = 0;
+		bool	_rightOfAx = false;
 	public:
 		PmergeMe();
 		PmergeMe(const PmergeMe& src);
@@ -75,7 +78,8 @@ class PmergeMe
 		std::cout << "\033[36m\n--------- identifyInsertionPoint ---------\033[0m" << std::endl;
 		std::cout << "mainStart: " << *mainStart << std::endl;
 		std::cout << "mainEnd: " << *mainEnd << std::endl;
-		// maybe save the endpoint so that the
+		// std::cout << "(jacobsthal - leftCounter - 1) * elementsize => (" << _jacobsthal << " - " << _leftCounter << " - 1) *" << elementSize << std::endl;
+
 		while (std::distance(mainStart, mainEnd) >= 0)
 		{
 			long dist = std::distance(mainStart, mainEnd);
@@ -83,7 +87,7 @@ class PmergeMe
 			auto mainMiddle = std::next(mainStart, distToMiddle);
 			std::cout << "mainMiddle: " << *mainMiddle << std::endl;
 			std::cout << "currentPend: " << *currentPend << std::endl;
-			std::cout << "dist: " << dist << std::endl;
+			// std::cout << "dist: " << dist << std::endl;
 
 			if (*currentPend < *mainMiddle)
 			{
@@ -94,8 +98,8 @@ class PmergeMe
 				if (mainMiddle == mainStart)
 					break ;
 				mainEnd = std::prev(mainMiddle, elementSize);
-				std::cout << "mainStart: " << *mainEnd << std::endl;
-				std::cout << "mainEnd: " << *mainEnd << std::endl;
+				// std::cout << "mainStart: " << *mainEnd << std::endl;
+				// std::cout << "mainEnd: " << *mainEnd << std::endl;
 			}
 			else if (*currentPend > *mainMiddle)
 			{
@@ -106,15 +110,15 @@ class PmergeMe
 				if (mainMiddle == mainEnd)
 					break ;
 				mainStart = std::next(mainMiddle, elementSize);
-				std::cout << "mainStart: " << *mainEnd << std::endl;
-				std::cout << "mainEnd: " << *mainEnd << std::endl;
+				// std::cout << "mainStart: " << *mainEnd << std::endl;
+				// std::cout << "mainEnd: " << *mainEnd << std::endl;
 			}
 			else
 			{
 				_right = true;
 				_comparisons++;
 				std::cout << "\033[34mnumber of comparisons: \033[0m" << _comparisons << std::endl;
-				std::cout << "middle" << std::endl;
+				// std::cout << "middle" << std::endl;
 				return (mainMiddle++);
 			}
 		}
@@ -124,7 +128,11 @@ class PmergeMe
 	template <typename T, typename Iterator>
 	void	setStartingPoint(T& container, Iterator& start, int previous, unsigned long elementSize)
 	{
-		long iterations = (_jacobsthal - previous) * elementSize - 1;
+		long iterations;
+		if (elementSize != 1)
+			iterations = (_jacobsthal - previous) * elementSize - 1;
+		else
+			iterations = (_jacobsthal - previous) * elementSize;
 		if (iterations >= static_cast<long>(container.size()))
 			start = std::prev(container.end());
 		else if (iterations < 0)
@@ -142,22 +150,43 @@ class PmergeMe
 	void	binarySearch(T& mainChain, T& pend, unsigned long elementSize, Iterator currentPend)
 	{
 		std::cout << "\033[34m\n--------- binary Search ---------\033[0m" << std::endl;
-		std::cout << "number of insertions:\t" << _insertions << std::endl;
-		std::cout << "(jacobsthal + insertions) * elementSize - 1" << "\n" << "(" << _jacobsthal << "+" << _insertions << ") * " << elementSize << "- 1" << std::endl;
-		std::cout << "=> " << (_jacobsthal + _insertions) * elementSize - 1 << std::endl;
 		auto mainStart = std::next(mainChain.begin(), elementSize - 1);
-		// the jacobsthal provides the index for b and a, after instering we need to account for this difference in mainChain, multiply by elementSize for scaling, -1 for last element of the block
 		typename T::iterator mainEnd;
-		setStartingPoint(mainChain, mainEnd, _insertions * (-1), elementSize); // when _insertions is 0 it seems to work in nearly all cases with the appropriate amount of comparisons
-		std::cout << "\033[34mdifference: [" << std::distance(mainStart, mainEnd) << "]\033[0m" << std::endl;
-		if (std::distance(mainStart, mainEnd) % 2 != 0)
-			mainEnd = std::prev(mainEnd, elementSize);
-		// when mainStart until mainEnd is an even distance than move one elementSize back
+		if (_rightOfAx)
+		{
+			std::cout << " rightOfAx true\nnumber of insertions:\t" << _insertions << std::endl;
+			std::cout << "(jacobsthal + insertions) * elementSize - 1" << "\n" << "(" << _jacobsthal << "+" << _insertions << ") * " << elementSize << "- 1" << std::endl;
+			std::cout << "=> " << (_jacobsthal + _insertions) * elementSize - 1 << std::endl;
+			setStartingPoint(mainChain, mainEnd, _insertions * (-1), elementSize);
+		}
+		else
+		{
+			std::cout << " rightOfAx false\n(jacobsthal) * elementSize - 1" << "\n" << "(" << _jacobsthal << ") * " << elementSize << "- 1" << std::endl;
+			std::cout << "=> " << (_jacobsthal) * elementSize - 1 << std::endl;
+			setStartingPoint(mainChain, mainEnd, _leftCounter, elementSize);
+		}
+		auto Ax = std::prev(mainEnd, elementSize);
+		std::cout << "\033[36mAx - 1 is: \033[0m" << *Ax << std::endl;
+
+
 
 		std::cout << "start main chain: " << *mainStart << std::endl;
 		std::cout << "end main chain: " << *mainEnd << std::endl;
 		auto insertionPoint = identifyInsertionPoint(mainStart, mainEnd, currentPend, elementSize);
 		std::cout << "\033[34mmainMiddle chain: \033[0m" << *insertionPoint << std::endl;
+
+		if (std::distance(Ax, insertionPoint) > 0)
+		{
+			_rightCounter++;
+			_rightOfAx = true;
+			std::cout << "rightCounter: [" << _rightCounter << "]" << std::endl;
+		}
+		else
+		{
+			_leftCounter++;
+			_rightOfAx = false;
+			std::cout << "leftCounter: [" << _leftCounter << "]" << std::endl;
+		}
 
 		auto insertStart = std::prev(currentPend, elementSize -1);
 		auto insertEnd = std::next(currentPend);
@@ -228,6 +257,9 @@ class PmergeMe
 		mainChain.insert(mainChain.end(), restStart, container.end());
 		container = mainChain;
 		_insertions = 0;
+		_leftCounter = 0;
+		_rightCounter = 0;
+		_rightOfAx = false;
 	}
 
 	/*----------------------------------------------*/

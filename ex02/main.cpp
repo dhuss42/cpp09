@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 15:26:09 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/19 15:55:44 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/20 15:13:23 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,25 @@ int	main(int argc, char **argv)
 
 //	1. 291 > 251
 //	2. 291 > 286 => here should stop because we know a2 > b2
+
+
+// mainChain:       | 113  | 157  | 287  | 397
+// 						b1		a1	a2		a3
+// the pend:        | 267  | 253  | 291
+// 						b2	b3		b4
+// => // mainChain:       | 113  | 157  | 253 | 287  | 397
+// 							b1		a1		b3	a2		a3
+// -> first time a2 equals b3 index + elementSize
+// -> if inserted to the left of a2 the range must remain the same
+// -> if inserted to the right end = a2 - elementSize
+
+
+// 253 -> 287 is inserted to the left => valdi range for b2 is 3
 //
-// when insertions is not 0 maybe the formula is not correct
-// the position in main cannot exceed begining + number of insertions ...
-// 3 jacobsthal -> original a3 is: begining + jacobsthal * elementsize -1
-// 1 insertion -> original b2 is for sure one element before this
-// -> in this case it must be - insertions
+
+// the range inside the mainChain stays the same if the value bx is smaller than ax -1
+//	-> keep track with number of insertions
+// the range of mainChain shrinks when bx is inserted behind ax - 1
+// -> keep track with number of insertions to the right of ax
+
+//
