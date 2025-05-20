@@ -148,7 +148,7 @@ class PmergeMe
 		auto mainStart = std::next(mainChain.begin(), elementSize - 1);
 		// the jacobsthal provides the index for b and a, after instering we need to account for this difference in mainChain, multiply by elementSize for scaling, -1 for last element of the block
 		typename T::iterator mainEnd;
-		setStartingPoint(mainChain, mainEnd, _insertions * (-1), elementSize);
+		setStartingPoint(mainChain, mainEnd, _insertions * (-1), elementSize); // when _insertions is 0 it seems to work in nearly all cases with the appropriate amount of comparisons
 		std::cout << "\033[34mdifference: [" << std::distance(mainStart, mainEnd) << "]\033[0m" << std::endl;
 		if (std::distance(mainStart, mainEnd) % 2 != 0)
 			mainEnd = std::prev(mainEnd, elementSize);
@@ -215,6 +215,7 @@ class PmergeMe
 				std::cout << "updating jacobsthal to: " << _jacobsthal << std::endl;
 				std::cout << "updating previous jacobsthal to: " << previous << std::endl;
 				setStartingPoint(pend, start, previous, elementSize);
+				end = std::next(pend.begin(), elementSize - 1);
 			}
 			else
 				start = std::prev(start, elementSize);

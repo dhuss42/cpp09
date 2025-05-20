@@ -39,3 +39,8 @@ int	main(int argc, char **argv)
 //	1. 291 > 251
 //	2. 291 > 286 => here should stop because we know a2 > b2
 //
+// when insertions is not 0 maybe the formula is not correct
+// the position in main cannot exceed begining + number of insertions ...
+// 3 jacobsthal -> original a3 is: begining + jacobsthal * elementsize -1
+// 1 insertion -> original b2 is for sure one element before this
+// -> in this case it must be - insertions

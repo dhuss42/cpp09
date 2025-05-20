@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SPAN=12
+SPAN=10
 NUMBERRANGE=500
 
 echo -e "\033[32m=============TEST=============\033[0m"
