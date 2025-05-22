@@ -1,18 +1,24 @@
 #!/bin/bash
 
-SPAN=24
-NUMBERRANGE=100
+NUMBERTESTS=100
+SPAN=10000
+NUMBERRANGE=100000
 
-echo -e "\033[32m=============TEST=============\033[0m"
-echo "Generating $SPAN random numbers in range 0 to $NUMBERRANGE..."
+echo -e "\033[32m=============TESTS=============\033[0m"
+#echo "Generating $SPAN random numbers in range 0 to $NUMBERRANGE..."
 
-args=""
-for ((i = 0; i < SPAN; i++))
+for ((j = 0; j <= NUMBERTESTS; j++))
 do
-	RAND_NUM=$(( RANDOM % NUMBERRANGE))
-	args+="$RAND_NUM "
-done
+	echo -e "\033[32m-----TEST $j-----\033[0m"
+	args=""
+	for ((i = 0; i < SPAN; i++))
+	do
+		RAND_NUM=$(( RANDOM % NUMBERRANGE))
+		args+="$RAND_NUM "
+	done
 
-echo -e "\033[34mRunning with arguments: $args\033[0m"
-echo ""
-./PmergeMe $args
+	#echo -e "\033[34mRunning with arguments: $args\033[0m"
+	echo ""
+	./PmergeMe $args
+	echo ""
+done
