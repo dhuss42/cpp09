@@ -140,18 +140,31 @@ void	PmergeMe::parsing(int argc, char **argv)
 /*------------------------------------------------------------------------------*/
 void	PmergeMe::execute(int argc, char **argv)
 {
+
 	parsing(argc, argv);
+	if (_vector.size() < 2)
+	{
+		std::cout << "the sequence consists of only one number" << std::endl;
+		return ;
+	}	
+	if (is_sorted(_vector.begin(), _vector.end()))
+	{
+		std::cout << "the sequence is already sorted" << std::endl;
+		return ;
+	}
 
-	std::cout << "\033[32mVector:\t\033[0m";
-	std::copy(_vector.begin(), _vector.end(), std::ostream_iterator<int>(std::cout, " "));
 
+	// std::cout << "\033[32mVector:\t\033[0m";
+	// std::copy(_vector.begin(), _vector.end(), std::ostream_iterator<int>(std::cout, " "));
+
+	_comparisons = 0;
 	auto	start = std::chrono::high_resolution_clock::now();
 	auto sorted = FordJohnson(_vector, 1, 1);
 	auto	end = std::chrono::high_resolution_clock::now();
 	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-	std::cout << "\nAfter:\t";
-	printContainer(sorted, 0);
+	// std::cout << "\nAfter:\t";
+	// printContainer(sorted, 0);
 	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
 	if (is_sorted(sorted.begin(), sorted.end()))
 		std::cout << "it's sorted my friend" << std::endl;
@@ -159,17 +172,23 @@ void	PmergeMe::execute(int argc, char **argv)
 
 	std::cout << "\n\033[32mDeque:\t\033[0m";
 	printContainer(_deque, 0);
+	auto tmp = _comparisons;
 	_comparisons = 0;
 	auto	startDeq = std::chrono::high_resolution_clock::now();
 	auto sortedDeq = FordJohnson(_deque, 1, 1);
 	auto	endDeq = std::chrono::high_resolution_clock::now();
 	auto	durationDeq = std::chrono::duration_cast<std::chrono::microseconds>(endDeq - startDeq).count();
-	std::cout << "After:\t";
-	printContainer(sortedDeq, 0);
+	// std::cout << "After:\t";
+	// printContainer(sortedDeq, 0);
 	std::cout << "Time to process a range of " << _deque.size() << " elements with std::deque : " << durationDeq << " us" << std::endl;
 	if (is_sorted(sortedDeq.begin(), sortedDeq.end()))
 		std::cout << "it's sorted my friend" << std::endl;
 	std::cout << "the number of comparisons is: " << _comparisons << std::endl;
+
+		std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
+	if (is_sorted(sorted.begin(), sorted.end()))
+		std::cout << "it's sorted my friend" << std::endl;
+	std::cout << "the number of comparisons is: " << tmp << std::endl;
 }
 
 /*--------------------------*/

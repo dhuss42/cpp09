@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SPAN=10000
-NUMBERRANGE=100000
+SPAN=24
+NUMBERRANGE=100
 
 echo -e "\033[32m=============TEST=============\033[0m"
 echo "Generating $SPAN random numbers in range 0 to $NUMBERRANGE..."
