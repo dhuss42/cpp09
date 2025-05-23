@@ -149,7 +149,7 @@ bool	BitcoinExchange::validateValue(std::string str, bool exiting)
 	}
 	catch(const std::exception& e)
 	{
-		err(E_INPUT, str.c_str(), exiting);
+		err(E_INPUT, str, exiting);
 		return (false);
 	}
 	if (num < 0)
@@ -199,13 +199,16 @@ void	BitcoinExchange::extractInput()
 		err(E_FILE, _filename, true);
 	getline(file, line);
 	if (line.compare("date | value") != 0)
-		err(E_WRONGHEADER, "for input file", true);
+		file.close(), err(E_WRONGHEADER, "for input file", true);
 	while (getline(file, line))
 	{
 		if (std::regex_match(line, split, pattern))
 		{
-			if (validateDate(split[1]) && validateValue(split[3], false))
-				matchDates(split[1], split[3]);
+			if (validateDate(split[1]))
+			{
+				if(validateValue(split[3], false))
+					matchDates(split[1], split[3]);
+			}
 			else
 				err(E_INPUT, line, false);
 		}
