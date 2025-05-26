@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 15:51:38 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/12 14:14:19 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/26 13:15:03 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 /*------------------------------*/
 /* Default Constructor			*/
 /*------------------------------*/
-BitcoinExchange::BitcoinExchange() : _filename(""), _date("")
+BitcoinExchange::BitcoinExchange() : _filename("default"), _date("1970-01-01")
 {
 	std::cout << std::fixed << std::setprecision(2);
 }

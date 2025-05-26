@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 15:37:08 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/12 14:13:35 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/26 13:12:57 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ int	main(int argc, char **argv)
 		BitcoinExchange btc(argv[1]);
 		btc.mapDataBase();
 		btc.extractInput();
+
+		BitcoinExchange a;
+		a.mapDataBase();
+		a.extractInput();
 	}
 	return (0);
 }

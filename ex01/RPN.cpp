@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 13:40:50 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/07 11:56:09 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/26 13:07:50 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,25 +116,29 @@ void	RPN::handleDigit(std::string digit)
 /*----------------------------------------------------------*/
 float	RPN::reversePolishNotation(const std::string& str)
 {
+	while (!_operands.empty())
+		_operands.pop();
 	if (str.empty())
-		err(E_EMPTY);
+	err(E_EMPTY);
 	if (str.length() == 1)
-		err(E_INVALID);
+	err(E_INVALID);
 	std::stringstream	ss(str);
 	std::string			token;
 	while (getline(ss, token, ' '))
 	{
 		if (token.length() != 1)
-			err(E_INVALID);
+		err(E_INVALID);
 		if (isdigit(token[0]))
-			handleDigit(token);
+		handleDigit(token);
 		else if (isOperator(token[0]) && _operands.size() > 1)
-			handleOperator(token[0]);
+		handleOperator(token[0]);
 		else
-			err(E_INVALID);
+		err(E_INVALID);
 	}
 	if (_countOperands - _countOperators != 1)
-		err(E_INVALID);
+	err(E_INVALID);
+	_countOperands = 0;
+	_countOperators = 0;
 	return (_operands.top());
 }
 
