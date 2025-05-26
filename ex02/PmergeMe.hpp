@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:09:55 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/22 16:43:53 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/26 11:51:35 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,13 @@ class PmergeMe
 		std::deque<int>	_deque;
 		size_t	_jacobsthal;
 		size_t	_insertions;
-		size_t	_insertionsJacobsthal = 0;
+		size_t	_insertionsJacobsthal;
 		size_t	_comparisons;
 		bool	_right;
-		size_t	_rightCounter = 0;
-		size_t	_leftCounter = 0;
-		bool	_rightOfAx = true;
-		size_t	_lastRange = 0;
-		size_t	_greaterJacob = 0;
+		size_t	_rightCounter;
+		bool	_rightOfAx;
+		size_t	_lastRange;
+		size_t	_greaterJacob;
 	public:
 		PmergeMe();
 		PmergeMe(const PmergeMe& src);
@@ -44,6 +43,7 @@ class PmergeMe
 		void	parsing(int argc, char **argv);
 		bool	alreadySorted();
 		void	execute(int argc, char **argv);
+		void	resetAttributes(int level);
 		static void	err(std::string msg);
 
 	class NotPositiveException: public std::exception
@@ -88,7 +88,6 @@ class PmergeMe
 	void	printPos(T& container, unsigned long elementSize, int pos)
 	{
 		size_t index = 0;
-		(void) elementSize;
 		for (auto it = container.begin(); it != container.end(); it++, index++)
 		{
 			std::cout << "\033[32m | \033[0m";
@@ -191,11 +190,22 @@ class PmergeMe
 			start = std::next(container.begin(), iterations);
 	}
 
-	// binary search
-	//	find the end of mainChain
-	// the bound element ax / bx is the current Jacobsthal + number of insertions scaled by elementSize
-	//		if no bound element compare if with the enire mainChain
-	// identify the Insertion point and insert the element from the pend into the mainChain
+	/*----------------------------------------------------------------------------------*/
+	/* Finds the starting and end point for the binary search in mainChain				*/
+	/*	- if the previous element was inserted to the right of ax - 1					*/
+	/*		->	mainEnd is jacobsthal + insertions scaled to elementSize from beginning	*/
+	/*	- if the previous element was inserted to the left of ax - 1					*/
+	/*		->	mainEnd remains the previous range between elements						*/
+	/*	- set Ax - 1																	*/
+	/*		->	if no insertion to the right has occured it equals mainEnd				*/
+	/*		->	if an insertion to the right has occured it equals mainEnd + the		*/
+	/* 		->	amount of insertions to the right for that jacobsthal number			*/
+	/*	- store the range between start and end of inserting range						*/
+	/*	- calls identifyInsertionPoint for actual binary search							*/
+	/*	- determines whether the insertionpoint is to the right of Ax - 1				*/
+	/*	- inserts the currentpend element into the mainChain position					*/
+	/*	- deletes current pend element from pend										*/
+	/*----------------------------------------------------------------------------------*/
 	template <typename T, typename Iterator>
 	void	binarySearch(T& mainChain, T& pend, unsigned long elementSize, Iterator &currentPend)
 	{
@@ -209,7 +219,7 @@ class PmergeMe
 		if (_rightCounter == 0)
 			Ax = mainEnd;
 		else
-			Ax = std::prev(mainEnd, (_rightCounter) * elementSize); // ax is not before mainEnd if inserted right of ax before
+			Ax = std::prev(mainEnd, (_rightCounter) * elementSize);
 		_lastRange = std::distance(mainStart, mainEnd);
 		auto insertionPoint = identifyInsertionPoint(mainStart, mainEnd, currentPend, elementSize);
 		if (std::distance(Ax, insertionPoint) > 0)
@@ -218,10 +228,7 @@ class PmergeMe
 			_rightOfAx = true;
 		}
 		else
-		{
-			_leftCounter++;
 			_rightOfAx = false;
-		}
 		auto insertStart = std::prev(currentPend, elementSize -1);
 		auto insertEnd = std::next(currentPend);
 		typename T::iterator insertionTarget;
@@ -265,15 +272,9 @@ class PmergeMe
 			if (offSet < 0)
 			{
 				updateJacobsthal(previous, current);
-
 				setStartingPoint(pend, start, previous, elementSize);
-
 				end = std::next(pend.begin(), elementSize - 1);
-				_rightOfAx = true;
-				_leftCounter = 0;
-				_rightCounter = 0;
-				_insertionsJacobsthal = 0;
-				_greaterJacob = 0;
+				resetAttributes(1);
 				if ((_jacobsthal - previous) * elementSize > pend.size())
 					_greaterJacob = ((_jacobsthal - previous) * elementSize) - pend.size();
 			}
@@ -286,12 +287,7 @@ class PmergeMe
 
 		mainChain.insert(mainChain.end(), restStart, container.end());
 		container = mainChain;
-		_insertions = 0;
-		_insertionsJacobsthal = 0;
-		_leftCounter = 0;
-		_rightCounter = 0;
-		_rightOfAx = true;
-		_greaterJacob = 0;
+		resetAttributes(2);
 	}
 
 	/*----------------------------------------------*/
@@ -332,7 +328,7 @@ class PmergeMe
 	/* - when recursion is resolved it returns the sorted container											*/
 	/*------------------------------------------------------------------------------------------------------*/
 	template <typename T>
-	T	FordJohnson(T& container, long elementSize, int counter)
+	T	FordJohnson(T& container, long elementSize)
 	{
 		for (auto it = container.begin(); std::distance(it, container.end()) >= 2 * elementSize; it += 2 * elementSize)
 		{
@@ -348,7 +344,7 @@ class PmergeMe
 		std::pair<T, T> chains;
 		if (static_cast<unsigned long>(elementSize) * 2 <= container.size())
 		{
-			FordJohnson(container, elementSize * 2, counter + 1);
+			FordJohnson(container, elementSize * 2);
 			chains = createChains(container, elementSize);
 			binaryInsertionSort(chains, elementSize, container);
 		}

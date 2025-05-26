@@ -6,7 +6,7 @@
 /*   By: dhuss <dhuss@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:53:22 by dhuss             #+#    #+#             */
-/*   Updated: 2025/05/22 15:09:21 by dhuss            ###   ########.fr       */
+/*   Updated: 2025/05/26 11:47:48 by dhuss            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,15 @@
 /*----------------------*/
 /* Constructor			*/
 /*----------------------*/
-PmergeMe::PmergeMe() : _jacobsthal(3), _insertions(0), _comparisons(0), _right(true)
+PmergeMe::PmergeMe()
 {
+	resetAttributes(3);
 }
 
 /*----------------------*/
 /* Copy Constructor		*/
 /*----------------------*/
-PmergeMe::PmergeMe(const PmergeMe& src) : _jacobsthal(src._jacobsthal), _insertions(src._insertions), _comparisons(src._comparisons), _right(src._right)
+PmergeMe::PmergeMe(const PmergeMe& src) : _jacobsthal(src._jacobsthal), _insertions(src._insertions), _insertionsJacobsthal(src._insertionsJacobsthal), _comparisons(src._comparisons), _right(src._right), _rightCounter(src._rightCounter), _rightOfAx(src._rightOfAx), _lastRange(src._lastRange), _greaterJacob(src._greaterJacob)
 {
 	_vector = src._vector;
 	_deque = src._deque;
@@ -39,8 +40,13 @@ PmergeMe& PmergeMe::operator=(const PmergeMe& other)
 	{
 		_jacobsthal = other._jacobsthal;
 		_insertions = other._insertions;
+		_insertionsJacobsthal = other._insertionsJacobsthal;
 		_comparisons = other._comparisons;
 		_right = other._right;
+		_rightCounter = other._rightCounter;
+		_rightOfAx = other._rightOfAx;
+		_lastRange = other._lastRange;
+		_greaterJacob = other._greaterJacob;
 		_vector = other._vector;
 		_deque = other._deque;
 	}
@@ -89,6 +95,31 @@ bool	only_digits(std::string str)
 //----------------Member Methods-----------------//
 
 /*------------------------------*/
+/* reset attributes to default	*/
+/*------------------------------*/
+void	PmergeMe::resetAttributes(int level)
+{
+	if (level >= 1)
+	{
+		_rightOfAx = true;
+		_rightCounter = 0;
+		_insertionsJacobsthal = 0;
+		_greaterJacob = 0;
+	}
+	if (level >= 2)
+		_insertions = 0;
+	if (level >= 3)
+	{
+		_jacobsthal = 3;
+		_comparisons = 0;
+		_right = true;
+		_lastRange = 0;
+		_vector.clear();
+		_deque.clear();
+	}
+}
+
+/*------------------------------*/
 /* updates Jacobsthal Number	*/
 /*------------------------------*/
 void	PmergeMe::updateJacobsthal(int& previous, int& current)
@@ -98,6 +129,9 @@ void	PmergeMe::updateJacobsthal(int& previous, int& current)
 	current = _jacobsthal;
 }
 
+/*----------------------------------------------*/
+/* checks if one container is already sorted	*/
+/*----------------------------------------------*/
 bool	PmergeMe::alreadySorted()
 {
 	if (_vector.size() < 2)
@@ -154,7 +188,7 @@ void	PmergeMe::parsing(int argc, char **argv)
 /*	- auto instead of															*/
 /*		-> std::chrono::time_point<std::chrono::high_resolution_clock> start	*/
 /*	- casting ensures that the time is represented in that unit					*/
-/* 		-> .count() does nor know units											*/
+/* 		-> .count() does not know units											*/
 /* 		-> .count() provides the raw number of time units						*/
 /*------------------------------------------------------------------------------*/
 void	PmergeMe::execute(int argc, char **argv)
@@ -167,14 +201,14 @@ void	PmergeMe::execute(int argc, char **argv)
 
 	_comparisons = 0;
 	auto	start = std::chrono::high_resolution_clock::now();
-	auto sorted = FordJohnson(_vector, 1, 1);
+	auto sorted = FordJohnson(_vector, 1);
 	auto	end = std::chrono::high_resolution_clock::now();
 	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-	std::cout << "\033[32m\nsorted:\033[0m\t";
+	std::cout << "\033[32m\nsorted:\033[0m\t\t";
 	printContainer(sorted, 0);
 
-	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
+	std::cout << "\nTime to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
 	if (is_sorted(sorted.begin(), sorted.end()))
 		std::cout << "\033[32mVector container is sorted!\033[0m" << std::endl;
 	else
@@ -184,7 +218,7 @@ void	PmergeMe::execute(int argc, char **argv)
 	auto tmp = _comparisons;
 	_comparisons = 0;
 	auto	startDeq = std::chrono::high_resolution_clock::now();
-	auto sortedDeq = FordJohnson(_deque, 1, 1);
+	auto sortedDeq = FordJohnson(_deque, 1);
 	auto	endDeq = std::chrono::high_resolution_clock::now();
 	auto	durationDeq = std::chrono::duration_cast<std::chrono::microseconds>(endDeq - startDeq).count();
 
@@ -198,18 +232,7 @@ void	PmergeMe::execute(int argc, char **argv)
 		std::cout << "\033[32mComparisons match\033[0m" << std::endl;
 	else
 		std::cout << "\033[31mComparisons differ\033[0m" << std::endl;
-	_vector.clear();
-	_deque.clear();
-	_jacobsthal = 3;
-	_insertions = 0;
-	_insertionsJacobsthal = 0;
-	_comparisons = 0;
-	_right = true;
-	_rightCounter = 0;
-	_leftCounter = 0;
-	_rightOfAx = true;
-	_lastRange = 0;
-	_greaterJacob = 0;
+	resetAttributes(3);
 }
 
 /*--------------------------*/
