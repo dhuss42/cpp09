@@ -98,6 +98,25 @@ void	PmergeMe::updateJacobsthal(int& previous, int& current)
 	current = _jacobsthal;
 }
 
+bool	PmergeMe::alreadySorted()
+{
+	if (_vector.size() < 2)
+	{
+		std::cout << "\033[36mThe sequence consists of only one number. Try adding more numbers...\033[0m" << std::endl;
+		_vector.clear();
+		_deque.clear();
+		return (true);
+	}
+	if (is_sorted(_vector.begin(), _vector.end()))
+	{
+		std::cout << "\033[36mThe sequence is already sorted. Try an unsorted sequence...\033[0m" << std::endl;
+		_vector.clear();
+		_deque.clear();
+		return (true);
+	}
+	return (false);
+}
+
 /*--------------------------------*/
 /* parses user input			  */
 /*--------------------------------*/
@@ -140,21 +159,11 @@ void	PmergeMe::parsing(int argc, char **argv)
 /*------------------------------------------------------------------------------*/
 void	PmergeMe::execute(int argc, char **argv)
 {
-
 	parsing(argc, argv);
-	if (_vector.size() < 2)
-	{
-		std::cout << "the sequence consists of only one number" << std::endl;
+	if (alreadySorted())
 		return ;
-	}
-	if (is_sorted(_vector.begin(), _vector.end()))
-	{
-		std::cout << "the sequence is already sorted" << std::endl;
-		return ;
-	}
-
-	// std::cout << "\033[32mUnsorted:\t\033[0m";
-	// printContainer(_deque, 0);
+	std::cout << "\033[32mUnsorted:\t\033[0m";
+	printContainer(_deque, 0);
 
 	_comparisons = 0;
 	auto	start = std::chrono::high_resolution_clock::now();
@@ -162,14 +171,15 @@ void	PmergeMe::execute(int argc, char **argv)
 	auto	end = std::chrono::high_resolution_clock::now();
 	auto	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-	// std::cout << "\033[32mAfter Vector:\033[0m\t";
-	// printContainer(sorted, 0);
+	std::cout << "\033[32m\nsorted:\033[0m\t";
+	printContainer(sorted, 0);
+
 	std::cout << "Time to process a range of " << _vector.size() << " elements with std::vector : " << duration << " us" << std::endl;
 	if (is_sorted(sorted.begin(), sorted.end()))
-		std::cout << "\033[32mit's sorted my friend\033[0m" << std::endl;
+		std::cout << "\033[32mVector container is sorted!\033[0m" << std::endl;
 	else
-		std::cout << "\033[31mnot sorted my friend\033[0m" << std::endl;
-	std::cout << "the number of comparisons is: " << _comparisons << std::endl;
+		std::cout << "\033[31mVector container is not sorted!\033[0m" << std::endl;
+	std::cout << "The number of comparisons is: " << _comparisons << std::endl;
 
 	auto tmp = _comparisons;
 	_comparisons = 0;
@@ -177,27 +187,36 @@ void	PmergeMe::execute(int argc, char **argv)
 	auto sortedDeq = FordJohnson(_deque, 1, 1);
 	auto	endDeq = std::chrono::high_resolution_clock::now();
 	auto	durationDeq = std::chrono::duration_cast<std::chrono::microseconds>(endDeq - startDeq).count();
-	// std::cout << "\033[32mAfter Deque:\033[0m\t";
-	// printContainer(sortedDeq, 0);
+
 	std::cout << "Time to process a range of " << _deque.size() << " elements with std::deque : " << durationDeq << " us" << std::endl;
 	if (is_sorted(sortedDeq.begin(), sortedDeq.end()))
-		std::cout << "\033[32mit's sorted my friend\033[0m" << std::endl;
+		std::cout << "\033[32mDeque container is sorted!\033[0m" << std::endl;
 	else
-		std::cout << "\033[31mnot sorted my friend\033[0m" << std::endl;
-	std::cout << "the number of comparisons is: " << _comparisons << std::endl;
+		std::cout << "\033[31mDeque container is not sorted!\033[0m" << std::endl;
+	std::cout << "The number of comparisons is: " << _comparisons << std::endl;
 	if (tmp == _comparisons)
-		std::cout << "\033[32mcomparisons match\033[0m" << std::endl;
+		std::cout << "\033[32mComparisons match\033[0m" << std::endl;
 	else
-		std::cout << "\033[31mcomparisons differ\033[0m" << std::endl;
+		std::cout << "\033[31mComparisons differ\033[0m" << std::endl;
+	_vector.clear();
+	_deque.clear();
+	_jacobsthal = 3;
+	_insertions = 0;
+	_insertionsJacobsthal = 0;
+	_comparisons = 0;
+	_right = true;
+	_rightCounter = 0;
+	_leftCounter = 0;
+	_rightOfAx = true;
+	_lastRange = 0;
+	_greaterJacob = 0;
 }
 
 /*--------------------------*/
 /* handles errors			*/
 /*--------------------------*/
-void	PmergeMe::err(/* t_errors err,  */std::string msg)
+void	PmergeMe::err(std::string msg)
 {
-	std::cerr << "\033[31mError: " << msg;
-
-	std::cerr << "\033[0m" << std::endl;
+	std::cerr << "\033[31mError: " << msg << "\033[0m" << std::endl;
 	exit(EXIT_FAILURE);
 }

@@ -32,7 +32,7 @@ clean:
 
 fclean: clean
 	@rm -rf $(NAME)
-	@ echo "\033[33mclean executable\033[0m"
+	@ echo "\033[33mclean $(NAME)\033[0m"
 
 re: fclean all
 

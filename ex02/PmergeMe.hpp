@@ -42,6 +42,7 @@ class PmergeMe
 		~PmergeMe();
 		void	updateJacobsthal(int& previous, int& current);
 		void	parsing(int argc, char **argv);
+		bool	alreadySorted();
 		void	execute(int argc, char **argv);
 		static void	err(std::string msg);
 

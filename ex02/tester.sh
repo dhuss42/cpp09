@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NUMBERTESTS=100
-SPAN=10000
-NUMBERRANGE=100000
+NUMBERTESTS=10
+SPAN=30
+NUMBERRANGE=10000
 
 echo -e "\033[32m=============TESTS=============\033[0m"
 #echo "Generating $SPAN random numbers in range 0 to $NUMBERRANGE..."

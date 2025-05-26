@@ -16,17 +16,23 @@ int	main(int argc, char **argv)
 {
 	if (argc < 2)
 		PmergeMe::err("invalid number of arguments");
-	else if (argc > INT_MAX)
-		PmergeMe::err("number of arguments is too high"); // test this
 	else
 	{
+		// std::cout << "\033[33m=============Default=============\033[0m" << std::endl;
 		PmergeMe pmM;
 		pmM.execute(argc, argv);
+
+		// std::cout << "\033[33m=============copy=============\033[0m" << std::endl;
+		// PmergeMe copy(pmM);
+		// copy.execute(argc, argv);
+
+		// std::cout << "\033[33m=============assign=============\033[0m" << std::endl;
+		// PmergeMe assign;
+		// assign = pmM;
+		// assign.execute(argc, argv);
 	}
 }
 
-// handle Input higher than INT_MAX
-// check more
-
 // add headers
 // check private attributes inside hpp file
+//	- get rid of _leftCounter
