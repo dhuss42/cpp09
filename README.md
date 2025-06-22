@@ -8,7 +8,7 @@ In this exercise, I built a program named btc that calculated the value of Bitco
 
 ## ex01
 
-In this exercise, I built a program named RPN that evaluated mathematical expressions written in Reverse Polish Notation. I used the std::stack container to manage the operands during computation. As I parsed the input string, I pushed digits between 0 and 9 onto the stack. When I encountered an operator, I popped the top two values from the stack, applied the operation, and pushed the result back. This approach correctly handled expressions like 2 2 +, 3 4 * 5 -, and 5 1 2 + 4 * + 3 -.
+In this exercise, I built a program named RPN that evaluated mathematical expressions written in Reverse Polish Notation. I used the std::stack container to manage the operands during computation. As I parsed the input string, I pushed digits between 0 and 9 onto the stack. When I encountered an operator, I popped the top two values from the stack, applied the operation, and pushed the result back. This approach correctly handled expressions like "2 2 +", "3 4 * 5 -", and "5 1 2 + 4 * + 3 -".
 
 ## ex02
 
